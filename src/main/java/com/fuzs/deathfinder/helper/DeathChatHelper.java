@@ -1,40 +1,52 @@
 package com.fuzs.deathfinder.helper;
 
 import com.fuzs.deathfinder.DeathFinder;
-import com.fuzs.deathfinder.handler.DeathChatHandler;
+import com.fuzs.deathfinder.handler.ConfigHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.HoverEvent;
 
 public class DeathChatHelper {
 
-    public static List<DeathChatHelper.DeathMessageBuffer> deathMessageBuffer = new LinkedList<>();
+    public static ITextComponent getCoordinateComponent(Vec3i position, int dimension) {
 
-    public static ITextComponent getDistanceComponent(DeathMessageBuffer buffer) {
+        int x = position.getX();
+        int y = position.getY();
+        int z = position.getZ();
+
+        String command = String.format(ConfigHandler.deathMessageCommand, x, y, z, dimension);
+        Style style = new Style().setColor(TextFormatting.GREEN).setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command)).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("death.message.tooltip")));
+        ITextComponent componentCoordinates = new TextComponentTranslation("death.message.coordinates", x, y, z).setStyle(style);
+
+        return new TextComponentTranslation("death.message.location", componentCoordinates, dimension);
+
+    }
+
+    public static ITextComponent getDistanceComponent(Vec3i position, int dimension) {
 
         EntityPlayer player = DeathFinder.proxy.getClientPlayer();
 
-        if (buffer.dim != player.dimension) {
+        if (dimension != player.dimension) {
 
-            return new TextComponentTranslation("death.message.dimension");
+            return new TextComponentTranslation("death.message.distance.dimension");
 
         } else {
 
-            int distance = getDistance(buffer, player);
+            int distance = getDistance(position, player);
 
-            if (distance == 0) {
+            if (distance < 2) {
 
-                return new TextComponentTranslation("death.message.close");
+                return new TextComponentTranslation("death.message.distance.close");
 
             } else {
 
-                return new TextComponentTranslation("death.message.distance", distance);
+                return new TextComponentTranslation("death.message.distance.amount", distance);
 
             }
 
@@ -42,43 +54,13 @@ public class DeathChatHelper {
 
     }
 
-    private static int getDistance(DeathMessageBuffer buffer, EntityPlayer player) {
+    private static int getDistance(Vec3i position, EntityPlayer player) {
 
-        double x = buffer.pos.getX() - player.posX;
-        double y = buffer.pos.getY() - player.posY;
-        double z = buffer.pos.getZ() - player.posZ;
+        double x = position.getX() - player.posX;
+        double y = position.getY() - player.posY;
+        double z = position.getZ() - player.posZ;
+
         return (int) MathHelper.sqrt(x * x + y * y + z * z);
-
-    }
-
-    public static DeathMessageBuffer findBuffer(String name) {
-
-        List<DeathMessageBuffer> list = DeathChatHelper.deathMessageBuffer.stream().filter(it -> it.name.getUnformattedText().equals(name)).collect(Collectors.toList());
-
-        if (!list.isEmpty()) {
-
-            DeathMessageBuffer buffer = list.get(0);
-            int i = DeathChatHelper.deathMessageBuffer.indexOf(buffer);
-            DeathChatHelper.deathMessageBuffer.subList(0, i + 1).clear();
-            return buffer;
-
-        }
-
-        return null;
-
-    }
-
-    public static class DeathMessageBuffer {
-
-        public final Vec3i pos;
-        public final int dim;
-        public final ITextComponent name;
-
-        public DeathMessageBuffer(Vec3i vec3i, int i, ITextComponent component) {
-            this.pos = vec3i;
-            this.dim = i;
-            this.name = component;
-        }
 
     }
 

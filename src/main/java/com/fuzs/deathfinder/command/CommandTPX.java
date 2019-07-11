@@ -1,23 +1,20 @@
 package com.fuzs.deathfinder.command;
 
-import com.sun.javafx.geom.Vec2d;
 import net.minecraft.command.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.util.ITeleporter;
-import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommandTPX extends CommandBase {
@@ -65,7 +62,7 @@ public class CommandTPX extends CommandBase {
 
             Vec3d position = parseCoordinates(entity, args, 1);
             int dimension = args.length > 4 ? parseInt(args[4]) : entity.dimension;
-            Vec2f rotation = parseRotation(entity, args, 5);
+            Vec3d rotation = parseRotation(entity, args, 5);
 
             teleportEntityToCoordinates(server, entity, dimension, position, rotation);
 
@@ -75,7 +72,7 @@ public class CommandTPX extends CommandBase {
 
             Entity destination = getEntity(server, sender, args[args.length - 1]);
 
-            teleportEntityToCoordinates(server, entity, destination.dimension, new Vec3d(destination.posX, destination.posY, destination.posZ), new Vec2f(destination.rotationYaw, destination.rotationPitch));
+            teleportEntityToCoordinates(server, entity, destination.dimension, new Vec3d(destination.posX, destination.posY, destination.posZ), new Vec3d(destination.rotationYaw, destination.rotationPitch, 0.0));
 
             notifyCommandListener(sender, this, "commands.tpx.success.entity", entity.getName(), destination.getName(), entity.dimension);
 
@@ -92,7 +89,7 @@ public class CommandTPX extends CommandBase {
 
     }
 
-    private static Vec2f parseRotation(Entity entity, String[] args, int startIndex) throws CommandException {
+    private static Vec3d parseRotation(Entity entity, String[] args, int startIndex) throws CommandException {
 
         CommandBase.CoordinateArg argYaw = parseCoordinate((double)entity.rotationYaw, args.length > startIndex ? args[startIndex] : "~", false);
         CommandBase.CoordinateArg argPitch = parseCoordinate((double)entity.rotationPitch, args.length > startIndex + 1 ? args[startIndex + 1] : "~", false);
@@ -101,21 +98,21 @@ public class CommandTPX extends CommandBase {
         float pitch = (float) MathHelper.wrapDegrees(argPitch.getResult());
         pitch = MathHelper.clamp(pitch, -90.0F, 90.0F);
 
-        return new Vec2f(yaw, pitch);
+        return new Vec3d(yaw, pitch, 0.0);
 
     }
 
     /**
      * Teleports an entity to the specified coordinates
      */
-    private static void teleportEntityToCoordinates(MinecraftServer server, Entity entity, int dimension, Vec3d position, Vec2f rotation) throws CommandException {
+    private static void teleportEntityToCoordinates(MinecraftServer server, Entity entity, int dimension, Vec3d position, Vec3d rotation) throws CommandException {
 
         if (entity.world == null) {
             return;
         }
 
         entity.dismountRidingEntity();
-        entity.setRotationYawHead(rotation.x);
+        entity.setRotationYawHead((float) rotation.x);
 
         if (entity.dimension != dimension) {
 
@@ -131,9 +128,9 @@ public class CommandTPX extends CommandBase {
         } else {
 
             if (entity instanceof EntityPlayerMP) {
-                ((EntityPlayerMP) entity).connection.setPlayerLocation(position.x, position.y, position.z, rotation.x, rotation.y);
+                ((EntityPlayerMP) entity).connection.setPlayerLocation(position.x, position.y, position.z, (float) rotation.x, (float) rotation.y);
             } else {
-                entity.setLocationAndAngles(position.x, position.y, position.z, rotation.x, rotation.y);
+                entity.setLocationAndAngles(position.x, position.y, position.z, (float) rotation.x, (float) rotation.y);
             }
 
         }
@@ -190,18 +187,11 @@ public class CommandTPX extends CommandBase {
         private final float rotationYaw;
         private final float rotationPitch;
 
-        private CommandTeleporter(BlockPos targetPos, float yaw, float pitch)
-        {
-            this.targetPos = targetPos;
-            this.rotationYaw = yaw;
-            this.rotationPitch = pitch;
-        }
-
-        private CommandTeleporter(Vec3d position, Vec2f rotation)
+        private CommandTeleporter(Vec3d position, Vec3d rotation)
         {
             this.targetPos = new BlockPos(position);
-            this.rotationYaw = rotation.x;
-            this.rotationPitch = rotation.y;
+            this.rotationYaw = (float) rotation.x;
+            this.rotationPitch = (float) rotation.y;
         }
 
         @Override

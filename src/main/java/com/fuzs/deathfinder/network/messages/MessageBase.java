@@ -10,13 +10,16 @@ import net.minecraftforge.fml.relauncher.Side;
 public abstract class MessageBase<T extends IMessage> implements IMessage, IMessageHandler<T, T> {
 
     @Override
-    public T onMessage(T message, MessageContext context){
+    public T onMessage(T message, MessageContext context) {
+
         if(context.side == Side.CLIENT) {
             this.handleClientSide(message, DeathFinder.proxy.getClientPlayer());
         } else {
             this.handleServerSide(message, context.getServerHandler().player);
         }
+
         return null;
+
     }
 
     /**

@@ -1,52 +1,47 @@
 package com.fuzs.deathfinder.network.messages;
 
-import com.fuzs.deathfinder.handler.DeathChatHandler;
 import com.fuzs.deathfinder.helper.DeathChatHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
 
-    private ITextComponent name;
+    private ITextComponent message;
+    private Vec3i position;
     private int dimension;
-    private int x;
-    private int y;
-    private int z;
 
     public MessageDeathCoords() {
     }
 
-    public MessageDeathCoords(EntityLivingBase playerMP) {
-        this.name = playerMP.getDisplayName();
-        this.dimension = playerMP.dimension;
-        this.x = (int) playerMP.posX;
-        this.y = (int) playerMP.posY;
-        this.z = (int) playerMP.posZ;
+    public MessageDeathCoords(ITextComponent component1, EntityLivingBase entity) {
+        this.message = component1;
+        this.position = new Vec3i(entity.posX, entity.posY, entity.posZ);
+        this.dimension = entity.dimension;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        this.name = ITextComponent.Serializer.jsonToComponent(ByteBufUtils.readUTF8String(buf));
+        this.message = ITextComponent.Serializer.jsonToComponent(ByteBufUtils.readUTF8String(buf));
+        this.position = new Vec3i(buf.readInt(), buf.readInt(), buf.readInt());
         this.dimension = buf.readUnsignedByte();
-        this.x = buf.readInt();
-        this.y = buf.readInt();
-        this.z = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        ByteBufUtils.writeUTF8String(buf, ITextComponent.Serializer.componentToJson(this.name));
+        ByteBufUtils.writeUTF8String(buf, ITextComponent.Serializer.componentToJson(this.message));
+        buf.writeInt(this.position.getX());
+        buf.writeInt(this.position.getY());
+        buf.writeInt(this.position.getZ());
         buf.writeByte(this.dimension);
-        buf.writeInt(this.x);
-        buf.writeInt(this.y);
-        buf.writeInt(this.z);
     }
 
     @Override
@@ -56,7 +51,11 @@ public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
 
         gameController.addScheduledTask(() -> {
 
-            DeathChatHelper.deathMessageBuffer.add(new DeathChatHelper.DeathMessageBuffer(message.getPosition(), message.getDimension(), message.getName()));
+            ITextComponent componentCoordinate = DeathChatHelper.getCoordinateComponent(message.getPosition(), message.getDimension());
+            ITextComponent componentDistance = new TextComponentTranslation("death.message.distance", DeathChatHelper.getDistanceComponent(message.getPosition(), message.getDimension()));
+            ITextComponent component = message.getMessage().appendSibling(componentCoordinate).appendSibling(componentDistance);
+
+            gameController.ingameGUI.addChatMessage(ChatType.SYSTEM, component);
 
         });
 
@@ -68,18 +67,18 @@ public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
     }
 
     @SideOnly(Side.CLIENT)
-    private ITextComponent getName() {
-        return this.name;
+    private ITextComponent getMessage() {
+        return this.message;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private Vec3i getPosition() {
+        return this.position;
     }
 
     @SideOnly(Side.CLIENT)
     private int getDimension() {
         return this.dimension;
-    }
-
-    @SideOnly(Side.CLIENT)
-    private Vec3i getPosition() {
-        return new Vec3i(this.x, this.y, this.z);
     }
 
 }

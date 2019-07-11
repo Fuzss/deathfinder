@@ -21,12 +21,17 @@ public class ConfigHandler {
 	public static boolean tpxEnable = true;
 
 	@Config.Name("Command Name")
-	@Config.Comment("Name for the custom teleport command added, only change when conflicting with other mods.")
+	@Config.Comment("Name for the custom teleport command added. Leave empty for \"tpx\" to be used.")
 	@Config.RequiresMcRestart
-	public static String tpxName = "tpx";
+	public static String tpxName = "";
 
 	@Config.Name("Death Message Command")
 	@Config.Comment("Command entered into chat when clicking the death message coordinates. %d is replaced by x-coordinate, y-coordinate, z-coordinate and dimension. This has to be adjusted when something about the custom teleport command has been altered.")
 	public static String deathMessageCommand = "/tpx @s %d %d %d %d";
+
+	@Config.Name("Named Entity Deaths")
+	@Config.Comment("Show death messages for named entities.")
+	@Config.RequiresMcRestart
+	public static boolean namedEntities = true;
 	
 }

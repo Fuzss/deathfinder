@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
         name = DeathFinder.NAME,
         version = DeathFinder.VERSION,
         acceptedMinecraftVersions = DeathFinder.RANGE,
+        dependencies = DeathFinder.DEPENDENCIES,
         certificateFingerprint = DeathFinder.FINGERPRINT
 )
 @Mod.EventBusSubscriber(modid = DeathFinder.MODID)
@@ -31,7 +32,8 @@ public class DeathFinder
     public static final String MODID = "deathfinder";
     public static final String NAME = "Death Finder";
     public static final String VERSION = "@VERSION@";
-    public static final String RANGE = "[1.12, 1.12.2]";
+    public static final String RANGE = "[1.12.2]";
+    public static final String DEPENDENCIES = "required-after:forge@[14.23.2.2651,)";
     public static final String CLIENT_PROXY_CLASS = "com.fuzs.deathfinder.proxy.ClientProxy";
     public static final String SERVER_PROXY_CLASS = "com.fuzs.deathfinder.proxy.ServerProxy";
     public static final String FINGERPRINT = "@FINGERPRINT@";
@@ -49,9 +51,11 @@ public class DeathFinder
 
     @EventHandler
     public void serverStarting(FMLServerStartingEvent evt) {
+
         if (ConfigHandler.tpxEnable) {
             evt.registerServerCommand(new CommandTPX(ConfigHandler.tpxName.isEmpty() ? "tpx" : ConfigHandler.tpxName));
         }
+
     }
 
     @EventHandler
