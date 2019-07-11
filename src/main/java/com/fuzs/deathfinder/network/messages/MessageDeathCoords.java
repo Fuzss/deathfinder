@@ -1,10 +1,12 @@
 package com.fuzs.deathfinder.network.messages;
 
 import com.fuzs.deathfinder.handler.DeathChatHandler;
+import com.fuzs.deathfinder.helper.DeathChatHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
@@ -54,11 +56,7 @@ public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
 
         gameController.addScheduledTask(() -> {
 
-            DeathChatHandler.name = message.getName();
-            DeathChatHandler.dimension = message.getDimension();
-            DeathChatHandler.x = message.getX();
-            DeathChatHandler.y = message.getY();
-            DeathChatHandler.z = message.getZ();
+            DeathChatHelper.deathMessageBuffer.add(new DeathChatHelper.DeathMessageBuffer(message.getPosition(), message.getDimension(), message.getName()));
 
         });
 
@@ -80,18 +78,8 @@ public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
     }
 
     @SideOnly(Side.CLIENT)
-    private int getX() {
-        return this.x;
-    }
-
-    @SideOnly(Side.CLIENT)
-    private int getY() {
-        return this.y;
-    }
-
-    @SideOnly(Side.CLIENT)
-    private int getZ() {
-        return this.z;
+    private Vec3i getPosition() {
+        return new Vec3i(this.x, this.y, this.z);
     }
 
 }

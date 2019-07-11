@@ -13,7 +13,7 @@ public class DeathEventHandler {
     @SubscribeEvent
     public void livingDeath(LivingDeathEvent evt) {
 
-        if (!evt.getEntityLiving().world.getGameRules().getBoolean("showDeathMessages")) {
+        if (!evt.getEntityLiving().world.getGameRules().getBoolean("showDeathMessages") || !ConfigHandler.deathMessage) {
             return;
         }
 
