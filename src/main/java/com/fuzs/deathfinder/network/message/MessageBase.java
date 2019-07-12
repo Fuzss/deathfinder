@@ -1,4 +1,4 @@
-package com.fuzs.deathfinder.network.messages;
+package com.fuzs.deathfinder.network.message;
 
 import com.fuzs.deathfinder.DeathFinder;
 import net.minecraft.entity.player.EntityPlayer;

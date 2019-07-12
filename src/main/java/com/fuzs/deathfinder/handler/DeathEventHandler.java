@@ -1,7 +1,8 @@
 package com.fuzs.deathfinder.handler;
 
+import com.fuzs.deathfinder.helper.DeathChatHelper;
 import com.fuzs.deathfinder.network.NetworkHandler;
-import com.fuzs.deathfinder.network.messages.MessageDeathCoords;
+import com.fuzs.deathfinder.network.message.MessageDeathCoords;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -23,18 +24,21 @@ public class DeathEventHandler {
 
         MessageDeathCoords message = new MessageDeathCoords(entity.getCombatTracker().getDeathMessage(), entity);
 
-        if (entity instanceof EntityTameable && ((EntityTameable) entity).getOwner() instanceof EntityPlayerMP) {
+        if (ConfigHandler.tamedEntities && entity instanceof EntityTameable && ((EntityTameable) entity).getOwner() instanceof EntityPlayerMP) {
 
+            message.setType(DeathChatHelper.DeathEntityType.TAMED);
             NetworkHandler.sendTo(message, (EntityPlayerMP) ((EntityTameable) entity).getOwner());
 
         } else if (ConfigHandler.namedEntities && entity.hasCustomName()) {
 
+            message.setType(DeathChatHelper.DeathEntityType.NAMED);
             NetworkHandler.sendToAll(message);
 
-        } else if (entity instanceof EntityPlayerMP) {
+        } else if (ConfigHandler.playerEntities && entity instanceof EntityPlayerMP) {
 
             EntityPlayerMP player = (EntityPlayerMP) entity;
             Team team = player.getTeam();
+            message.setType(DeathChatHelper.DeathEntityType.PLAYER);
 
             if (team != null && team.getDeathMessageVisibility() != Team.EnumVisible.ALWAYS) {
 

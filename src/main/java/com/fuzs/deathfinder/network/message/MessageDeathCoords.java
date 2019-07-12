@@ -1,4 +1,4 @@
-package com.fuzs.deathfinder.network.messages;
+package com.fuzs.deathfinder.network.message;
 
 import com.fuzs.deathfinder.helper.DeathChatHelper;
 import io.netty.buffer.ByteBuf;
@@ -18,30 +18,39 @@ public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
     private ITextComponent message;
     private Vec3i position;
     private int dimension;
+    private int type = 0;
 
     public MessageDeathCoords() {
     }
 
-    public MessageDeathCoords(ITextComponent component1, EntityLivingBase entity) {
-        this.message = component1;
+    public MessageDeathCoords(ITextComponent component, EntityLivingBase entity) {
+
+        this.message = component;
         this.position = new Vec3i(entity.posX, entity.posY, entity.posZ);
         this.dimension = entity.dimension;
+
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
+
         this.message = ITextComponent.Serializer.jsonToComponent(ByteBufUtils.readUTF8String(buf));
         this.position = new Vec3i(buf.readInt(), buf.readInt(), buf.readInt());
         this.dimension = buf.readUnsignedByte();
+        this.type = buf.readUnsignedByte();
+
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
+
         ByteBufUtils.writeUTF8String(buf, ITextComponent.Serializer.componentToJson(this.message));
         buf.writeInt(this.position.getX());
         buf.writeInt(this.position.getY());
         buf.writeInt(this.position.getZ());
         buf.writeByte(this.dimension);
+        buf.writeByte(this.type);
+
     }
 
     @Override
@@ -50,6 +59,10 @@ public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
         Minecraft gameController = Minecraft.getMinecraft();
 
         gameController.addScheduledTask(() -> {
+
+            if (!DeathChatHelper.DeathEntityType.values()[message.getType()].isEnabled()) {
+                return;
+            }
 
             ITextComponent componentCoordinate = DeathChatHelper.getCoordinateComponent(message.getPosition(), message.getDimension());
             ITextComponent componentDistance = new TextComponentTranslation("death.message.distance", DeathChatHelper.getDistanceComponent(message.getPosition(), message.getDimension()));
@@ -79,6 +92,15 @@ public class MessageDeathCoords extends MessageBase<MessageDeathCoords> {
     @SideOnly(Side.CLIENT)
     private int getDimension() {
         return this.dimension;
+    }
+
+    @SideOnly(Side.CLIENT)
+    private int getType() {
+        return this.type;
+    }
+
+    public void setType(DeathChatHelper.DeathEntityType type) {
+        this.type = type.ordinal();
     }
 
 }

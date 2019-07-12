@@ -64,4 +64,21 @@ public class DeathChatHelper {
 
     }
 
+    public enum DeathEntityType {
+
+        PLAYER(ConfigHandler.playerEntities),
+        TAMED(ConfigHandler.tamedEntities),
+        NAMED(ConfigHandler.namedEntities);
+
+        private boolean enabled;
+
+        DeathEntityType(boolean flag) {
+            this.enabled = flag;
+        }
+
+        public boolean isEnabled() {
+            return this.enabled;
+        }
+    }
+
 }
