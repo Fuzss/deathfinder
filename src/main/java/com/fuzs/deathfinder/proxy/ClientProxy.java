@@ -4,7 +4,7 @@ import com.fuzs.deathfinder.handler.DeathChatHandler;
 import com.fuzs.deathfinder.handler.DeathEventHandler;
 import com.fuzs.deathfinder.handler.DeathScreenHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.common.MinecraftForge;
 
 @SuppressWarnings("unused")
@@ -18,7 +18,7 @@ public class ClientProxy extends CommonProxy {
     }
 
     @Override
-    public EntityPlayer getClientPlayer() {
-        return Minecraft.getMinecraft().player;
+    public PlayerEntity getClientPlayer() {
+        return Minecraft.getInstance().player;
     }
 }

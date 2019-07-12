@@ -1,8 +1,8 @@
 package com.fuzs.deathfinder.handler;
 
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class DeathChatHandler {
 
@@ -10,9 +10,9 @@ public class DeathChatHandler {
     @SubscribeEvent
     public void chatReceived(ClientChatReceivedEvent evt) {
 
-        if (evt.getMessage() instanceof TextComponentTranslation) {
+        if (evt.getMessage() instanceof TranslationTextComponent) {
 
-            TextComponentTranslation textcomponent = (TextComponentTranslation) evt.getMessage();
+            TranslationTextComponent textcomponent = (TranslationTextComponent) evt.getMessage();
             String s = textcomponent.getKey();
 
             if (s.matches("death\\..*")) {

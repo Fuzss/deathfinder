@@ -4,4 +4,4 @@ Adds coordinates to death messages and the death screen. Never waste time search
 ![DeathFinder](https://i.imgur.com/s4doawb.png)
 
 ## Downloads
-Check this project out on [Curse](https://minecraft.curseforge.com/projects/death-finder).
+Check this project out on [Curse](https://www.curseforge.com/minecraft/mc-mods/death-finder).

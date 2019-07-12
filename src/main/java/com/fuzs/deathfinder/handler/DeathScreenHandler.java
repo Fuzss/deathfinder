@@ -1,31 +1,31 @@
 package com.fuzs.deathfinder.handler;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGameOver;
+import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.client.event.GuiScreenEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class DeathScreenHandler {
 
-    private final Minecraft mc = Minecraft.getMinecraft();
+    private final Minecraft mc = Minecraft.getInstance();
 
     @SuppressWarnings("unused")
     @SubscribeEvent
     public void drawScreen(GuiScreenEvent.DrawScreenEvent evt) {
 
-        if (!ConfigHandler.deathScreen) {
+        if (!ConfigHandler.GENERAL_CONFIG.deathScreen.get()) {
             return;
         }
 
-        if (evt.getGui() instanceof GuiGameOver) {
+        if (evt.getGui() instanceof DeathScreen) {
 
             float x = Math.round(this.mc.player.posX * 10.0) / 10.0f;
-            float y = Math.round(this.mc.player.getEntityBoundingBox().minY * 10.0) / 10.0f;
+            float y = Math.round(this.mc.player.getBoundingBox().minY * 10.0) / 10.0f;
             float z = Math.round(this.mc.player.posZ * 10.0) / 10.0f;
 
-            ITextComponent textComponent = new TextComponentTranslation("deathScreen.coordinates", x, y, z);
+            ITextComponent textComponent = new TranslationTextComponent("deathScreen.coordinates", x, y, z);
             evt.getGui().drawCenteredString(this.mc.fontRenderer, textComponent.getFormattedText(), evt.getGui().width / 2, 115, 16777215);
 
         }

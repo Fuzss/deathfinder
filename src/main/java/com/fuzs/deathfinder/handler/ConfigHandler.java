@@ -1,37 +1,35 @@
 package com.fuzs.deathfinder.handler;
 
-import com.fuzs.deathfinder.DeathFinder;
-import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 @SuppressWarnings("WeakerAccess")
-@Config(modid = DeathFinder.MODID)
 public class ConfigHandler {
 
-	@Config.Name("Coordinates In Death Message")
-	@Config.Comment("Add coordinates to the end of ever death message.")
-	public static boolean deathMessage = true;
+	private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
+	public static final GeneralConfig GENERAL_CONFIG = new GeneralConfig("general");
 
-	@Config.Name("Coordinates On Death Screen")
-	@Config.Comment("Show current player coordinates on the death screen.")
-	public static boolean deathScreen = true;
+	public static class GeneralConfig {
 
-	@Config.Name("Register Command")
-	@Config.Comment("Register a custom teleport command for teleporting across dimensions.")
-	@Config.RequiresMcRestart
-	public static boolean tpxEnable = true;
+		public final ForgeConfigSpec.BooleanValue deathMessage;
+		public final ForgeConfigSpec.BooleanValue deathScreen;
+		public final ForgeConfigSpec.BooleanValue namedEntities;
+		public final ForgeConfigSpec.ConfigValue<String> deathMessageCommand;
 
-	@Config.Name("Command Name")
-	@Config.Comment("Name for the custom teleport command added. Leave empty for \"tpx\" to be used.")
-	@Config.RequiresMcRestart
-	public static String tpxName = "";
+		private GeneralConfig(String name) {
 
-	@Config.Name("Death Message Command")
-	@Config.Comment("Command entered into chat when clicking the death message coordinates. %d is replaced by x-coordinate, y-coordinate, z-coordinate and dimension. This has to be adjusted when something about the custom teleport command has been altered.")
-	public static String deathMessageCommand = "/tpx @s %d %d %d %d";
+			BUILDER.push(name);
 
-	@Config.Name("Named Entity Deaths")
-	@Config.Comment("Show death messages for named entities.")
-	@Config.RequiresMcRestart
-	public static boolean namedEntities = true;
+			this.deathMessage = ConfigHandler.BUILDER.comment("Add coordinates to the end of ever death message.").define("Coordinates In Death Message", true);
+			this.deathScreen = ConfigHandler.BUILDER.comment("Show current player coordinates on the death screen.").define("Coordinates On Death Screen", true);
+			this.namedEntities = ConfigHandler.BUILDER.comment("Show death message for named entities.").define("Named Entity Deaths", true);
+			this.deathMessageCommand = ConfigHandler.BUILDER.comment("Command entered into chat when clicking the death message coordinates. %s is replaced by dimension, x-coordinate, y-coordinate and z-coordinate.").define("Death Message Command", "/execute in %s run tp @s %s %s %s");
+
+			BUILDER.pop();
+
+		}
+
+	}
+
+	public static final ForgeConfigSpec SPEC = BUILDER.build();
 	
 }
