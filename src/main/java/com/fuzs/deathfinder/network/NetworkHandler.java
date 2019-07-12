@@ -25,7 +25,7 @@ public class NetworkHandler {
     public static void init() {
 
         int discriminator = 0;
-        INSTANCE.registerMessage(discriminator++, MessageDeathCoords.class, MessageDeathCoords::writePacketData, MessageDeathCoords::readPacketData, MessageDeathCoords::processPacket);
+        INSTANCE.registerMessage(discriminator, MessageDeathCoords.class, MessageDeathCoords::writePacketData, MessageDeathCoords::readPacketData, MessageDeathCoords::processPacket);
 
     }
 

@@ -8,8 +8,6 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -35,6 +33,7 @@ public class MessageDeathCoords {
             buf.writeInt(data.getPosition().getY());
             buf.writeInt(data.getPosition().getZ());
             buf.writeByte(data.getDimension());
+            buf.writeByte(data.getType());
 
         }
 
@@ -50,8 +49,9 @@ public class MessageDeathCoords {
             ITextComponent message = buf.readTextComponent();
             Vec3i position = new Vec3i(buf.readInt(), buf.readInt(), buf.readInt());
             int dimension = buf.readUnsignedByte();
+            int type = buf.readUnsignedByte();
 
-            data[i] = new MessageDeathCoordsData(message, position, dimension);
+            data[i] = new MessageDeathCoordsData(message, position, dimension, type);
 
         }
 
@@ -64,6 +64,10 @@ public class MessageDeathCoords {
         ctx.get().enqueueWork(() -> {
 
             for (MessageDeathCoordsData data : message.data) {
+
+                if (!DeathChatHelper.DeathEntityType.values()[data.getType()].isEnabled()) {
+                    continue;
+                }
 
                 ITextComponent componentCoordinate = DeathChatHelper.getCoordinateComponent(data.getPosition(), data.getDimension());
                 ITextComponent componentDistance = new TranslationTextComponent("death.message.distance", DeathChatHelper.getDistanceComponent(data.getPosition(), data.getDimension()));
@@ -84,36 +88,43 @@ public class MessageDeathCoords {
         private final ITextComponent message;
         private final Vec3i position;
         private final int dimension;
+        private int type = 0;
 
         public MessageDeathCoordsData(ITextComponent component, LivingEntity entity) {
 
-            message = component;
-            position = new Vec3i(entity.posX, entity.posY, entity.posZ);
-            dimension = entity.dimension.getId();
+            this.message = component;
+            this.position = new Vec3i(entity.posX, entity.posY, entity.posZ);
+            this.dimension = entity.dimension.getId();
 
         }
 
-        private MessageDeathCoordsData(ITextComponent component, Vec3i vec3i, int i) {
+        private MessageDeathCoordsData(ITextComponent component, Vec3i vec3i, int i, int j) {
 
-            message = component;
-            position = vec3i;
-            dimension = i;
+            this.message = component;
+            this.position = vec3i;
+            this.dimension = i;
+            this.type = j;
 
         }
 
-        @OnlyIn(Dist.CLIENT)
         private ITextComponent getMessage() {
-            return message;
+            return this.message;
         }
 
-        @OnlyIn(Dist.CLIENT)
         private Vec3i getPosition() {
-            return position;
+            return this.position;
         }
 
-        @OnlyIn(Dist.CLIENT)
         private int getDimension() {
-            return dimension;
+            return this.dimension;
+        }
+
+        private int getType() {
+            return this.type;
+        }
+
+        public void setType(DeathChatHelper.DeathEntityType type) {
+            this.type = type.ordinal();
         }
 
     }

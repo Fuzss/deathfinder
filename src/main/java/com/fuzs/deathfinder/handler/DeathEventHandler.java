@@ -1,5 +1,6 @@
 package com.fuzs.deathfinder.handler;
 
+import com.fuzs.deathfinder.helper.DeathChatHelper;
 import com.fuzs.deathfinder.network.NetworkHandler;
 import com.fuzs.deathfinder.network.message.MessageDeathCoords;
 import net.minecraft.entity.LivingEntity;
@@ -22,36 +23,39 @@ public class DeathEventHandler {
             return;
         }
 
-        MessageDeathCoords message = new MessageDeathCoords(new MessageDeathCoords.MessageDeathCoordsData(entity.getCombatTracker().getDeathMessage(), entity));
+        MessageDeathCoords.MessageDeathCoordsData messageData = new MessageDeathCoords.MessageDeathCoordsData(entity.getCombatTracker().getDeathMessage(), entity);
 
-        if (entity instanceof TameableEntity && ((TameableEntity) entity).getOwner() instanceof ServerPlayerEntity) {
+        if (ConfigHandler.GENERAL_CONFIG.tamedEntities.get() && entity instanceof TameableEntity && ((TameableEntity) entity).getOwner() instanceof ServerPlayerEntity) {
 
-            NetworkHandler.sendTo(message, (ServerPlayerEntity) ((TameableEntity) entity).getOwner());
+            messageData.setType(DeathChatHelper.DeathEntityType.TAMED);
+            NetworkHandler.sendTo(new MessageDeathCoords(messageData), (ServerPlayerEntity) ((TameableEntity) entity).getOwner());
 
         } else if (ConfigHandler.GENERAL_CONFIG.namedEntities.get() && entity.hasCustomName()) {
 
-            NetworkHandler.sendToAll(message);
+            messageData.setType(DeathChatHelper.DeathEntityType.NAMED);
+            NetworkHandler.sendToAll(new MessageDeathCoords(messageData));
 
-        } else if (entity instanceof ServerPlayerEntity) {
+        } else if (ConfigHandler.GENERAL_CONFIG.playerEntities.get() && entity instanceof ServerPlayerEntity) {
 
             ServerPlayerEntity player = (ServerPlayerEntity) entity;
             Team team = player.getTeam();
+            messageData.setType(DeathChatHelper.DeathEntityType.PLAYER);
 
             if (team != null && team.getDeathMessageVisibility() != Team.Visible.ALWAYS) {
 
                 if (team.getDeathMessageVisibility() == Team.Visible.HIDE_FOR_OTHER_TEAMS) {
 
-                    NetworkHandler.sendToAllTeamMembers(message, (ServerPlayerEntity) entity);
+                    NetworkHandler.sendToAllTeamMembers(new MessageDeathCoords(messageData), (ServerPlayerEntity) entity);
 
                 } else if (team.getDeathMessageVisibility() == Team.Visible.HIDE_FOR_OWN_TEAM) {
 
-                    NetworkHandler.sendToTeamOrAllPlayers(message, (ServerPlayerEntity) entity);
+                    NetworkHandler.sendToTeamOrAllPlayers(new MessageDeathCoords(messageData), (ServerPlayerEntity) entity);
 
                 }
 
             } else {
 
-                NetworkHandler.sendToAll(message);
+                NetworkHandler.sendToAll(new MessageDeathCoords(messageData));
 
             }
 

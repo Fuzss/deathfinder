@@ -13,6 +13,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class DeathChatHelper {
 
@@ -23,10 +24,13 @@ public class DeathChatHelper {
         int z = position.getZ();
 
         // probably only works with vanilla dimensions
-        DimensionType type = DimensionType.getById(dimension);
-        ResourceLocation dimensionType = DimensionType.field_223227_a_.getRegistryName();
-        if (type != null) {
-            dimensionType = DimensionType.getKey(type);
+        DimensionType dimensionType1 = DimensionType.getById(dimension);
+        String dimensionType = "unknown";
+        if (dimensionType1 != null) {
+            ResourceLocation dimensionResource = DimensionType.getKey(dimensionType1);
+            if (dimensionResource != null) {
+                dimensionType = dimensionResource.toString();
+            }
         }
 
         String command = String.format(ConfigHandler.GENERAL_CONFIG.deathMessageCommand.get(), dimensionType, x, y, z);
@@ -71,6 +75,23 @@ public class DeathChatHelper {
 
         return (int) MathHelper.sqrt(x * x + y * y + z * z);
 
+    }
+
+    public enum DeathEntityType {
+
+        PLAYER(ConfigHandler.GENERAL_CONFIG.playerEntities),
+        TAMED(ConfigHandler.GENERAL_CONFIG.tamedEntities),
+        NAMED(ConfigHandler.GENERAL_CONFIG.namedEntities);
+
+        private ForgeConfigSpec.BooleanValue enabled;
+
+        DeathEntityType(ForgeConfigSpec.BooleanValue flag) {
+            this.enabled = flag;
+        }
+
+        public boolean isEnabled() {
+            return enabled.get();
+        }
     }
 
 }

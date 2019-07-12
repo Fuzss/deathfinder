@@ -5,7 +5,6 @@ import com.fuzs.deathfinder.network.NetworkHandler;
 import com.fuzs.deathfinder.proxy.ClientProxy;
 import com.fuzs.deathfinder.proxy.CommonProxy;
 import com.fuzs.deathfinder.proxy.ServerProxy;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -28,7 +27,7 @@ public class DeathFinder
     public DeathFinder() {
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ConfigHandler.SPEC, MODID + ".toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.SPEC, MODID + ".toml");
 
     }
 
