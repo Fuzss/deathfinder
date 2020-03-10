@@ -1,39 +1,44 @@
 package com.fuzs.deathfinder;
 
-import com.fuzs.deathfinder.handler.ConfigHandler;
-import com.fuzs.deathfinder.network.NetworkHandler;
-import com.fuzs.deathfinder.proxy.ClientProxy;
-import com.fuzs.deathfinder.proxy.CommonProxy;
-import com.fuzs.deathfinder.proxy.ServerProxy;
-import net.minecraftforge.fml.DistExecutor;
+import com.fuzs.deathfinder.client.DeathScreenHandler;
+import com.fuzs.deathfinder.common.DeathMessageHandler;
+import com.fuzs.deathfinder.config.ConfigBuildHandler;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Mod(DeathFinder.MODID)
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class DeathFinder
-{
+@Mod(DeathFinder.MODID)
+public class DeathFinder {
+
     public static final String MODID = "deathfinder";
     public static final String NAME = "Death Finder";
     public static final Logger LOGGER = LogManager.getLogger(DeathFinder.NAME);
 
-    public static CommonProxy proxy = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
-
     public DeathFinder() {
 
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigHandler.SPEC, MODID + ".toml");
+        // general setup
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onClientSetup);
 
+        // config setup
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ConfigBuildHandler.SPEC, MODID + ".toml");
     }
 
-    private void commonSetup(final FMLCommonSetupEvent evt) {
-        NetworkHandler.init();
-        proxy.preInit();
+    private void onCommonSetup(final FMLCommonSetupEvent evt) {
+
+        MinecraftForge.EVENT_BUS.register(new DeathMessageHandler());
+    }
+
+    private void onClientSetup(final FMLClientSetupEvent evt) {
+
+        MinecraftForge.EVENT_BUS.register(new DeathScreenHandler());
     }
 
 }
