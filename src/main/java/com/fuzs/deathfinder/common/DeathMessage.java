@@ -42,7 +42,7 @@ public class DeathMessage {
 
         ResourceLocation dimension = DimensionType.getKey(this.entity.dimension);
         String type = dimension != null ? dimension.toString() : "unknown";
-        int x = (int) this.entity.posX, y = (int) this.entity.posY, z = (int) this.entity.posZ;
+        int x = (int) this.entity.getPosX(), y = (int) this.entity.getPosY(), z = (int) this.entity.getPosZ();
 
         ITextComponent itextcomponent = TextComponentUtils.wrapInSquareBrackets(new TranslationTextComponent("chat.coordinates", x, y, z));
         if (player != null && player.hasPermissionLevel(2)) {

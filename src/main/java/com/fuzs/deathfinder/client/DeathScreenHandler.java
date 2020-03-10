@@ -23,7 +23,7 @@ public class DeathScreenHandler {
 
         if (evt.getGui() instanceof DeathScreen && this.mc.player != null) {
 
-            int x = (int) this.mc.player.posX, y = (int) this.mc.player.posY, z = (int) this.mc.player.posZ;
+            int x = (int) this.mc.player.getPosX(), y = (int) this.mc.player.getPosY(), z = (int) this.mc.player.getPosZ();
             ITextComponent textComponent = new TranslationTextComponent("death.screen.coordinates", x, y, z);
             evt.getGui().drawCenteredString(this.mc.fontRenderer, textComponent.getFormattedText(), evt.getGui().width / 2, 115, 16777215);
         }
