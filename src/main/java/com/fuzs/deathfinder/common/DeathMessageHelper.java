@@ -4,7 +4,6 @@ import com.fuzs.deathfinder.config.ConfigBuildHandler;
 import com.fuzs.deathfinder.config.StringListBuilder;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SCombatPacket;
 import net.minecraft.scoreboard.Team;
@@ -23,16 +22,15 @@ public class DeathMessageHelper {
 
     private final StringListBuilder<EntityType<?>> parser = new StringListBuilder<>(ForgeRegistries.ENTITIES);
     private Set<EntityType<?>> blacklist;
+    private Set<EntityType<?>> whitelist;
 
     private boolean resetGamerule;
 
-    public void handleTamed(TameableEntity tameable, DeathMessage message, ServerPlayerEntity owner) {
+    public void handleTamed(ServerPlayerEntity owner, DeathMessage message) {
 
-        if (tameable.getEntityWorld() instanceof ServerWorld) {
+        this.disableVanillaLogic(owner.getServerWorld());
 
-            // disable gamerule to prevent vanilla logic from running
-            tameable.getEntityWorld().getGameRules().get(GameRules.SHOW_DEATH_MESSAGES).set(false, null);
-            this.resetGamerule = true;
+        if (ConfigBuildHandler.TAMED.get()) {
 
             owner.sendMessage(message.getMessage(owner));
         }
@@ -40,9 +38,12 @@ public class DeathMessageHelper {
 
     public void handlePlayer(ServerPlayerEntity player, DeathMessage message, MessageSender sender) {
 
-        // disable gamerule to prevent vanilla logic from running
-        player.getEntityWorld().getGameRules().get(GameRules.SHOW_DEATH_MESSAGES).set(false, null);
-        this.resetGamerule = true;
+        this.disableVanillaLogic(player.getServerWorld());
+
+        if (!ConfigBuildHandler.PLAYERS.get()) {
+
+            return;
+        }
 
         ITextComponent itextcomponent = message.getMessage(player);
         player.connection.sendPacket(new SCombatPacket(player.getCombatTracker(), SCombatPacket.Event.ENTITY_DIED, itextcomponent), (p_212356_2_) -> {
@@ -74,6 +75,13 @@ public class DeathMessageHelper {
         }
     }
 
+    private void disableVanillaLogic(ServerWorld world) {
+
+        // disable gamerule to prevent vanilla logic from running
+        world.getGameRules().get(GameRules.SHOW_DEATH_MESSAGES).set(false, null);
+        this.resetGamerule = true;
+    }
+
     public boolean getReset() {
 
         return this.resetGamerule;
@@ -81,21 +89,33 @@ public class DeathMessageHelper {
 
     public boolean isAllowed(EntityType<?> type) {
 
-        return !this.getBlacklist().contains(type);
+        return !this.getBlacklist().contains(type) && (this.getWhitelist().isEmpty() || this.getWhitelist().contains(type));
     }
 
     private Set<EntityType<?>> getBlacklist() {
 
         if (this.blacklist == null) {
-            this.syncBlacklist();
+
+            this.sync();
         }
 
         return this.blacklist;
     }
 
-    public void syncBlacklist() {
+    private Set<EntityType<?>> getWhitelist() {
 
-        this.blacklist = this.parser.buildEntrySetWithCondition(ConfigBuildHandler.GENERAL_CONFIG.entityBlacklist.get(), type -> type.getClassification() != EntityClassification.MISC, "No instance of LivingEntity");
+        if (this.whitelist == null) {
+
+            this.sync();
+        }
+
+        return this.whitelist;
+    }
+
+    public void sync() {
+
+        this.blacklist = this.parser.buildEntrySetWithCondition(ConfigBuildHandler.BLACKLIST.get(), type -> type.getClassification() != EntityClassification.MISC, "No instance of LivingEntity");
+        this.whitelist = this.parser.buildEntrySetWithCondition(ConfigBuildHandler.WHITELIST.get(), type -> type.getClassification() != EntityClassification.MISC, "No instance of LivingEntity");
     }
 
 }

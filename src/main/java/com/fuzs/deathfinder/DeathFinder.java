@@ -1,6 +1,7 @@
 package com.fuzs.deathfinder;
 
 import com.fuzs.deathfinder.client.DeathScreenHandler;
+import com.fuzs.deathfinder.common.DeathMapHandler;
 import com.fuzs.deathfinder.common.DeathMessageHandler;
 import com.fuzs.deathfinder.config.ConfigBuildHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -34,6 +35,7 @@ public class DeathFinder {
     private void onCommonSetup(final FMLCommonSetupEvent evt) {
 
         MinecraftForge.EVENT_BUS.register(new DeathMessageHandler());
+        MinecraftForge.EVENT_BUS.register(new DeathMapHandler());
     }
 
     private void onClientSetup(final FMLClientSetupEvent evt) {
