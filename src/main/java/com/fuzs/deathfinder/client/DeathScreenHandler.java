@@ -16,7 +16,7 @@ public class DeathScreenHandler {
     @SubscribeEvent
     public void onDrawScreen(final GuiScreenEvent.DrawScreenEvent evt) {
 
-        if (!ConfigBuildHandler.GENERAL_CONFIG.deathScreen.get()) {
+        if (!ConfigBuildHandler.DEATH_SCREEN.get()) {
 
             return;
         }

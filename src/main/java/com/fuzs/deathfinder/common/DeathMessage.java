@@ -1,5 +1,6 @@
 package com.fuzs.deathfinder.common;
 
+import com.fuzs.deathfinder.config.ConfigBuildHandler;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
@@ -24,18 +25,23 @@ public class DeathMessage {
 
     public ITextComponent getMessage() {
 
-        return this.getMessagePart(null);
+        return ConfigBuildHandler.DEATH_MESSAGE.get() ? this.getCoordinateMessage(null) : this.getSimpleMessage();
     }
 
     public ITextComponent getMessage(PlayerEntity player) {
 
-        return this.getMessagePart(player).appendSibling(this.getDistanceComponent(player));
+        return ConfigBuildHandler.DEATH_MESSAGE.get() ? this.getCoordinateMessage(player)
+                .appendSibling(this.getDistanceComponent(player)) : this.getSimpleMessage();
     }
 
-    private ITextComponent getMessagePart(@Nullable PlayerEntity player) {
+    private ITextComponent getSimpleMessage() {
 
-        ITextComponent message = this.entity.getCombatTracker().getDeathMessage().shallowCopy();
-        return message.appendSibling(this.getCoordinateComponent(player));
+        return this.entity.getCombatTracker().getDeathMessage();
+    }
+
+    private ITextComponent getCoordinateMessage(@Nullable PlayerEntity player) {
+
+        return this.getSimpleMessage().appendSibling(this.getCoordinateComponent(player));
     }
 
     private ITextComponent getCoordinateComponent(@Nullable PlayerEntity player) {

@@ -21,31 +21,30 @@ public class DeathMessageHandler {
 
         LivingEntity entity = evt.getEntityLiving();
 
-        if (!ConfigBuildHandler.GENERAL_CONFIG.deathMessage.get() || entity.getServer() == null ||
-                !entity.getEntityWorld().getGameRules().getBoolean(GameRules.SHOW_DEATH_MESSAGES)) {
+        if (!entity.getEntityWorld().getGameRules().getBoolean(GameRules.SHOW_DEATH_MESSAGES) || entity.getServer() == null) {
 
             return;
         }
 
         DeathMessage message = new DeathMessage(entity);
         MessageSender sender = new MessageSender(entity.getServer());
-        if (ConfigBuildHandler.GENERAL_CONFIG.all.get() && this.helper.isAllowed(entity.getType())) {
+        if (ConfigBuildHandler.ALL.get() && this.helper.isAllowed(entity.getType())) {
 
             sender.sendMessage(message);
-        } else if (ConfigBuildHandler.GENERAL_CONFIG.players.get() && entity instanceof ServerPlayerEntity && !entity.isSpectator()) {
+        } else if (entity instanceof ServerPlayerEntity && !entity.isSpectator()) {
 
             this.helper.handlePlayer((ServerPlayerEntity) entity, message, sender);
-        } else if (ConfigBuildHandler.GENERAL_CONFIG.tamed.get() && entity instanceof TameableEntity && ((TameableEntity) entity).getOwner() instanceof ServerPlayerEntity) {
+        } else if (entity instanceof TameableEntity && ((TameableEntity) entity).getOwner() instanceof ServerPlayerEntity) {
 
-            this.helper.handleTamed((TameableEntity) entity, message, (ServerPlayerEntity) ((TameableEntity) entity).getOwner());
-        } else if (ConfigBuildHandler.GENERAL_CONFIG.named.get() && entity.hasCustomName()) {
+            this.helper.handleTamed((ServerPlayerEntity) ((TameableEntity) entity).getOwner(), message);
+        } else if (ConfigBuildHandler.NAMED.get() && entity.hasCustomName()) {
 
             sender.sendMessage(message);
         }
     }
 
     @SuppressWarnings("unused")
-    @SubscribeEvent
+    @SubscribeEvent(receiveCanceled = true)
     public void onLivingDrops(final LivingDropsEvent evt) {
 
         // reset gamerule which has previously been disabled
@@ -61,7 +60,7 @@ public class DeathMessageHandler {
 
         if (evt.getConfig().getSpec() == ConfigBuildHandler.SPEC) {
 
-            this.helper.syncBlacklist();
+            this.helper.sync();
         }
     }
 
