@@ -7,6 +7,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.play.server.SCombatPacket;
 import net.minecraft.scoreboard.Team;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -29,32 +30,31 @@ public class DeathMessageHelper {
     public void handleTamed(ServerPlayerEntity owner, DeathMessage message) {
 
         this.disableVanillaLogic(owner.getServerWorld());
+        if (ConfigBuildHandler.MESSAGES_TAMED.get()) {
 
-        if (ConfigBuildHandler.TAMED.get()) {
-
-            owner.sendMessage(message.getMessage(owner));
+            owner.sendMessage(message.getMessage(owner), Util.DUMMY_UUID);
         }
     }
 
     public void handlePlayer(ServerPlayerEntity player, DeathMessage message, MessageSender sender) {
 
         this.disableVanillaLogic(player.getServerWorld());
-
-        if (!ConfigBuildHandler.PLAYERS.get()) {
+        if (!ConfigBuildHandler.MESSAGES_PLAYERS.get()) {
 
             return;
         }
 
-        ITextComponent itextcomponent = message.getMessage(player);
+        // message for death screen is different from chat message
+        ITextComponent itextcomponent = player.getCombatTracker().getDeathMessage();
         player.connection.sendPacket(new SCombatPacket(player.getCombatTracker(), SCombatPacket.Event.ENTITY_DIED, itextcomponent), (p_212356_2_) -> {
 
             if (!p_212356_2_.isSuccess()) {
 
                 String s = itextcomponent.getStringTruncated(256);
                 ITextComponent itextcomponent1 = new TranslationTextComponent("death.attack.message_too_long",
-                        new StringTextComponent(s).applyTextStyle(TextFormatting.YELLOW));
+                        new StringTextComponent(s).mergeStyle(TextFormatting.YELLOW));
                 ITextComponent itextcomponent2 = (new TranslationTextComponent("death.attack.even_more_magic", player.getDisplayName()))
-                        .applyTextStyle((p_212357_1_) -> p_212357_1_.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, itextcomponent1)));
+                        .modifyStyle((p_212357_1_) -> p_212357_1_.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, itextcomponent1)));
                 player.connection.sendPacket(new SCombatPacket(player.getCombatTracker(), SCombatPacket.Event.ENTITY_DIED, itextcomponent2));
             }
         });
@@ -114,8 +114,8 @@ public class DeathMessageHelper {
 
     public void sync() {
 
-        this.blacklist = this.parser.buildEntrySetWithCondition(ConfigBuildHandler.BLACKLIST.get(), type -> type.getClassification() != EntityClassification.MISC, "No instance of LivingEntity");
-        this.whitelist = this.parser.buildEntrySetWithCondition(ConfigBuildHandler.WHITELIST.get(), type -> type.getClassification() != EntityClassification.MISC, "No instance of LivingEntity");
+        this.blacklist = this.parser.buildEntrySetWithCondition(ConfigBuildHandler.MESSAGES_BLACKLIST.get(), type -> type.getClassification() != EntityClassification.MISC, "No instance of LivingEntity");
+        this.whitelist = this.parser.buildEntrySetWithCondition(ConfigBuildHandler.MESSAGES_WHITELIST.get(), type -> type.getClassification() != EntityClassification.MISC, "No instance of LivingEntity");
     }
 
 }

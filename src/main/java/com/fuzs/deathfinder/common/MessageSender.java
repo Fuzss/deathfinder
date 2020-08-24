@@ -6,6 +6,7 @@ import net.minecraft.network.play.server.SChatPacket;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.ChatType;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class MessageSender {
 
     public void sendMessage(DeathMessage message) {
 
-        this.server.sendMessage(message.getMessage());
+        this.server.sendMessage(message.getMessage(), Util.DUMMY_UUID);
         this.sendMessage(message, this.playerList.getPlayers());
     }
 
@@ -35,7 +36,7 @@ public class MessageSender {
 
     private void sendMessage(DeathMessage message, ServerPlayerEntity player) {
 
-        player.connection.sendPacket(new SChatPacket(message.getMessage(player), ChatType.SYSTEM));
+        player.connection.sendPacket(new SChatPacket(message.getMessage(player), ChatType.SYSTEM, Util.DUMMY_UUID));
     }
 
     public void sendMessageToAllTeamMembers(final PlayerEntity player, DeathMessage message) {

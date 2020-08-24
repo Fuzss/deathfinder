@@ -15,7 +15,7 @@ public class DeathMessageHandler {
 
     private final DeathMessageHelper helper = new DeathMessageHelper();
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "ConstantConditions"})
     @SubscribeEvent
     public void onLivingDeath(final LivingDeathEvent evt) {
 
@@ -28,7 +28,7 @@ public class DeathMessageHandler {
 
         DeathMessage message = new DeathMessage(entity);
         MessageSender sender = new MessageSender(entity.getServer());
-        if (ConfigBuildHandler.ALL.get() && this.helper.isAllowed(entity.getType())) {
+        if (ConfigBuildHandler.MESSAGES_ALL.get() && this.helper.isAllowed(entity.getType())) {
 
             sender.sendMessage(message);
         } else if (entity instanceof ServerPlayerEntity && !entity.isSpectator()) {
@@ -37,7 +37,7 @@ public class DeathMessageHandler {
         } else if (entity instanceof TameableEntity && ((TameableEntity) entity).getOwner() instanceof ServerPlayerEntity) {
 
             this.helper.handleTamed((ServerPlayerEntity) ((TameableEntity) entity).getOwner(), message);
-        } else if (ConfigBuildHandler.NAMED.get() && entity.hasCustomName()) {
+        } else if (ConfigBuildHandler.MESSAGES_NAMED.get() && entity.hasCustomName()) {
 
             sender.sendMessage(message);
         }

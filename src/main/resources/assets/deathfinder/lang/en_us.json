@@ -1,5 +1,6 @@
 {
-  "filled_map.death": "Death Map",
+  "lodestone_compass.death": "Death Compass of %s",
+  "filled_map.death": "Death Map of %s",
   "death.message.location": " at %s in dimension %s",
   "death.message.distance": " (%s)",
   "death.message.distance.amount": "%s blocks away",
