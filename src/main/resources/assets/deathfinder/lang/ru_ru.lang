@@ -1,0 +1,14 @@
+commands.tpx.dimension.notFound=Нет такого измерения с id %s
+commands.tpx.usage=/%1$s [целевой объект] <объект назначения> ИЛИ /%1$s [целевая сущность] <x> <y> <z> [измерение] [<yaw> <pitch>]
+commands.tpx.success.entity=%s телепортирован к %s в измерении %s
+commands.tpx.success.coordinates=%s телепортирован к %s, %s, %s в измерении %s
+
+death.message.location= около %s в измерении %s
+death.message.coordinates=[%s, %s, %s]
+death.message.tooltip=Нажмите, чтобы телепортироваться
+death.message.distance= (%s)
+death.message.distance.amount=%s блоков отсюда
+death.message.distance.dimension=очень далеко
+death.message.distance.close=очень близко
+
+deathScreen.coordinates=Позиция: %s, %s, %s
