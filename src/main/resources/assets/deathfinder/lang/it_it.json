@@ -1,0 +1,10 @@
+{
+  "lodestone_compass.death": "Bussola della morte di %s",
+  "filled_map.death": "Mappa della morte di %s",
+  "death.message.location": " a %s nella dimensione %s",
+  "death.message.distance": " (%s)",
+  "death.message.distance.amount": "lontano %s blocchi",
+  "death.message.distance.dimension": "molto lontano",
+  "death.message.distance.close": "molto vicino",
+  "death.screen.coordinates": "Posizione: %s, %s, %s"
+}
