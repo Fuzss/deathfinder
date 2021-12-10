@@ -26,7 +26,13 @@ public class DeathScreenHandler {
 
     public void onScreenOpen(final ScreenOpenEvent evt) {
         if (evt.getScreen() instanceof DeathScreen) {
-            this.lastPlayerPosition = this.minecraft.player.blockPosition();
+            // when canceling death message on server, death screen package is still sent (arrives after ours though)
+            // so we intercept it here and keep our screen
+            if (this.minecraft.screen instanceof DeathScreen) {
+                evt.setCanceled(true);
+            } else {
+                this.lastPlayerPosition = this.minecraft.player.blockPosition();
+            }
         }
     }
 }

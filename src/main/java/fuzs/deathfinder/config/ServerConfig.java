@@ -49,9 +49,9 @@ public class ServerConfig extends AbstractConfig {
         public boolean namedEntityDeaths = true;
         @Config(description = "Show death message for all entities.")
         public boolean allDeaths = false;
-        @Config(name = "Trader Blacklist", description = {"Entities to be excluded when \"all_deaths\" is enabled.", EntryCollectionBuilder.CONFIG_DESCRIPTION})
-        private List<String> deathMessageBlacklistRaw = Lists.newArrayList();
-        @Config(name = "Trader Blacklist", description = {"The only entities to be included when \"all_deaths\" is enabled. Takes precedence over blacklist.", EntryCollectionBuilder.CONFIG_DESCRIPTION})
+        @Config(name = "death_message_blacklist", description = {"Entities to be excluded when \"all_deaths\" is enabled.", EntryCollectionBuilder.CONFIG_DESCRIPTION})
+        private List<String> deathMessageBlacklistRaw = EntryCollectionBuilder.getKeyList(ForgeRegistries.ENTITIES, EntityType.BAT, EntityType.GLOW_SQUID);
+        @Config(name = "death_message_whitelist", description = {"The only entities to be included when \"all_deaths\" is enabled. Takes precedence over blacklist.", EntryCollectionBuilder.CONFIG_DESCRIPTION})
         private List<String> deathMessageWhitelistRaw = Lists.newArrayList();
 
         public Set<EntityType<?>> deathMessageBlacklist;

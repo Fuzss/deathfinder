@@ -1,10 +1,10 @@
 package fuzs.deathfinder;
 
-import fuzs.deathfinder.handler.ItemHandler;
-import fuzs.deathfinder.handler.MessageHandler;
 import fuzs.deathfinder.config.ClientConfig;
 import fuzs.deathfinder.config.ServerConfig;
+import fuzs.deathfinder.handler.MessageHandler;
 import fuzs.puzzleslib.config.ConfigHolder;
+import fuzs.puzzleslib.config.ConfigHolderImpl;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,7 +24,13 @@ public class DeathFinder {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
-        MinecraftForge.EVENT_BUS.register(new MessageHandler());
-        MinecraftForge.EVENT_BUS.register(new ItemHandler());
+        ((ConfigHolderImpl<?, ?>) CONFIG).addConfigs(MOD_ID);
+        registerHandlers();
+    }
+
+    private static void registerHandlers() {
+        final MessageHandler handler = new MessageHandler();
+        MinecraftForge.EVENT_BUS.addListener(handler::onLivingDeath);
+//        MinecraftForge.EVENT_BUS.register(new ItemHandler());
     }
 }

@@ -5,6 +5,9 @@ import net.minecraft.network.chat.*;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 public class DeathMessageBuilder {
     private final LivingEntity deadEntity;
     private boolean withPosition;
@@ -15,11 +18,11 @@ public class DeathMessageBuilder {
         this.deadEntity = deadEntity;
     }
 
-    public Component build(Player receiver) {
+    public Component build(@Nullable Player receiver) {
         MutableComponent component = new TextComponent("").append(this.getVanillaComponent());
-        if (this.withPosition) component.append(this.getPositionComponent(receiver));
-        if (this.withDimension) component.append(this.getDimensionComponent());
-        if (this.withDistance) component.append(this.getDistanceComponent(receiver));
+        if (this.withPosition) component.append(" ").append(this.getPositionComponent(receiver));
+        if (this.withDimension) component.append(" ").append(this.getDimensionComponent());
+        if (this.withDistance && receiver != null) component.append(" ").append(this.getDistanceComponent(receiver));
         return component;
     }
 
@@ -42,11 +45,11 @@ public class DeathMessageBuilder {
         return this.deadEntity.getCombatTracker().getDeathMessage();
     }
 
-    private Component getPositionComponent(Player receiver) {
+    private Component getPositionComponent(@Nullable Player receiver) {
         String dimension = this.deadEntity.level.dimension().location().toString();
         int x = this.deadEntity.getBlockX(), y = this.deadEntity.getBlockY(), z = this.deadEntity.getBlockZ();
         MutableComponent component = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", x, y, z));
-        if (receiver.hasPermissions(2)) {
+        if (receiver != null && receiver.hasPermissions(2)) {
             component.withStyle(style -> style.withColor(ChatFormatting.GREEN)
                     .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, String.format("/execute in %s run tp @s %s %s %s", dimension, x, y, z)))
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip"))));
@@ -59,7 +62,7 @@ public class DeathMessageBuilder {
         return new TranslatableComponent("death.message.dimension", dimension);
     }
 
-    private Component getDistanceComponent(Player receiver) {
+    private Component getDistanceComponent(@Nonnull Player receiver) {
         Component component;
         if (this.deadEntity.level.dimension() != receiver.level.dimension()) {
             component = new TranslatableComponent("death.message.distance.dimension");

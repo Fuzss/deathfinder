@@ -17,6 +17,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 public class DeathFinderClient {
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
+        registerHandlers();
+    }
+
+    private static void registerHandlers() {
         final DeathScreenHandler handler = new DeathScreenHandler();
         MinecraftForge.EVENT_BUS.addListener(handler::onDrawScreen);
         MinecraftForge.EVENT_BUS.addListener(handler::onScreenOpen);

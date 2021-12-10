@@ -1,9 +1,6 @@
 package fuzs.deathfinder.config;
 
-import com.google.common.collect.Lists;
 import net.minecraftforge.common.ForgeConfigSpec;
-
-import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 public class ConfigBuildHandler {
