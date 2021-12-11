@@ -1,5 +1,9 @@
 {
-  "lodestone_compass.death": "Death Compass of %s",
+  "item.deathfinder.death_compass": "Death Compass",
+  "item.deathfinder.death_compass.player": " of %s",
+  "death_compass.tooltip.pos": "X: %s Y: %s Z: %s",
+  "death_compass.tooltip.dimension": "Dimension: %s",
+  "death_compass.tooltip.date": "Date: %s",
   "death.message.position": "at %s",
   "death.message.dimension": "in dimension %s",
   "death.message.distance.blocks": "%s blocks away",

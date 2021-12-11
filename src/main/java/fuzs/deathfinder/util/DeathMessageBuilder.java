@@ -69,9 +69,9 @@ public class DeathMessageBuilder {
         } else {
             double distance = this.deadEntity.position().distanceTo(receiver.position());
             if (distance < 3.0) {
-                component =  new TranslatableComponent("death.message.distance.close");
+                component = new TranslatableComponent("death.message.distance.close");
             } else {
-                component =  new TranslatableComponent("death.message.distance.blocks", (int) distance);
+                component = new TranslatableComponent("death.message.distance.blocks", (int) distance);
             }
         }
         return new TextComponent("(").append(component).append(")");

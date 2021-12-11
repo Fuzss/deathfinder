@@ -24,7 +24,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
-public class MessageHandler {
+public class DeathMessageHandler {
     public void onLivingDeath(final LivingDeathEvent evt) {
         LivingEntity entity = evt.getEntityLiving();
         if (entity.level.isClientSide || !entity.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {

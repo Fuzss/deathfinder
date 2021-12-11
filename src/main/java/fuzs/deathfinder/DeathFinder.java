@@ -2,7 +2,9 @@ package fuzs.deathfinder;
 
 import fuzs.deathfinder.config.ClientConfig;
 import fuzs.deathfinder.config.ServerConfig;
-import fuzs.deathfinder.handler.MessageHandler;
+import fuzs.deathfinder.handler.DeathCompassHandler;
+import fuzs.deathfinder.handler.DeathMessageHandler;
+import fuzs.deathfinder.registry.ModRegistry;
 import fuzs.puzzleslib.config.ConfigHolder;
 import fuzs.puzzleslib.config.ConfigHolderImpl;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,12 +27,15 @@ public class DeathFinder {
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
         ((ConfigHolderImpl<?, ?>) CONFIG).addConfigs(MOD_ID);
+        ModRegistry.touch();
         registerHandlers();
     }
 
     private static void registerHandlers() {
-        final MessageHandler handler = new MessageHandler();
-        MinecraftForge.EVENT_BUS.addListener(handler::onLivingDeath);
-//        MinecraftForge.EVENT_BUS.register(new ItemHandler());
+        final DeathMessageHandler deathMessageHandler = new DeathMessageHandler();
+        MinecraftForge.EVENT_BUS.addListener(deathMessageHandler::onLivingDeath);
+        final DeathCompassHandler deathCompassHandler = new DeathCompassHandler();
+        MinecraftForge.EVENT_BUS.addListener(deathCompassHandler::onLivingDrops);
+        MinecraftForge.EVENT_BUS.addListener(deathCompassHandler::onPlayerClone);
     }
 }
