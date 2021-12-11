@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class ServerConfig extends AbstractConfig {
     @Config(description = "Give death compass even when gamerule \"keepInventory\" is enabled.")
-    public boolean ignoreKeepInventory = true;
+    public boolean ignoreKeepInventory = false;
     @Config(description = "Give death compass only to players that dropped items from their inventory upon dying.")
     public boolean onlyOnItemsLost = false;
     @Config(description = "Give death compass only to survival players that died.")

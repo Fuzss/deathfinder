@@ -1,13 +1,13 @@
 package fuzs.deathfinder.mixin;
 
+import com.mojang.authlib.GameProfile;
 import fuzs.deathfinder.world.entity.player.PlayerDeathTracker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,21 +16,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-@Mixin(Player.class)
-public abstract class PlayerMixin extends LivingEntity implements PlayerDeathTracker {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerMixin2 extends Player implements PlayerDeathTracker {
     @Unique
     private BlockPos lastDeathPosition = BlockPos.ZERO;
     @Unique
     private ResourceKey<Level> lastDeathDimension = Level.OVERWORLD;
     @Unique
     private long lastDeathDate;
-    
-    protected PlayerMixin(EntityType<? extends LivingEntity> p_20966_, Level p_20967_) {
-        super(p_20966_, p_20967_);
+
+    public ServerPlayerMixin2(Level p_36114_, BlockPos p_36115_, float p_36116_, GameProfile p_36117_) {
+        super(p_36114_, p_36115_, p_36116_, p_36117_);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))

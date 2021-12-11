@@ -5,8 +5,8 @@
   "package": "fuzs.deathfinder.mixin",
   "refmap": "META-INF/deathfinder.refmap.json",
   "mixins": [
-    "PlayerMixin",
     "ServerPlayerMixin",
+    "ServerPlayerMixin2",
     "TamableAnimalMixin"
   ],
   "client": [

@@ -94,13 +94,16 @@ public class DeathCompassItem extends Item implements Vanishable {
       if (p_4itemStack457_.hasTag()) {
          CompoundTag tag = p_4itemStack457_.getTag();
          BlockPos blockpos = NbtUtils.readBlockPos(tag.getCompound("LastDeathPos"));
-         tooltip.add(new TranslatableComponent("death_compass.tooltip.pos", new TextComponent(String.valueOf(blockpos.getX())).withStyle(ChatFormatting.GRAY), new TextComponent(String.valueOf(blockpos.getY())).withStyle(ChatFormatting.GRAY), new TextComponent(String.valueOf(blockpos.getZ())).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
+         tooltip.add(new TranslatableComponent("item.deathfinder.death_compass.tooltip.position", new TextComponent(String.valueOf(blockpos.getX())).withStyle(ChatFormatting.GRAY), new TextComponent(String.valueOf(blockpos.getY())).withStyle(ChatFormatting.GRAY), new TextComponent(String.valueOf(blockpos.getZ())).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
          final Optional<ResourceKey<Level>> lastDeathDimension = getLastDeathDimension(tag);
          if (lastDeathDimension.isPresent()) {
-            tooltip.add(new TranslatableComponent("death_compass.tooltip.dimension", new TextComponent(lastDeathDimension.get().location().toString()).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
+            tooltip.add(new TranslatableComponent("item.deathfinder.death_compass.tooltip.dimension", new TextComponent(lastDeathDimension.get().location().toString()).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
          }
-         String date = DATE_FORMAT.format(new Date(tag.getLong("LastDeathDate")));
-         tooltip.add(new TranslatableComponent("death_compass.tooltip.date", new TextComponent(date).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
+         final long lastDeathDate = tag.getLong("LastDeathDate");
+         if (lastDeathDate > 0) {
+            String date = DATE_FORMAT.format(new Date(lastDeathDate));
+            tooltip.add(new TranslatableComponent("item.deathfinder.death_compass.tooltip.date", new TextComponent(date).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
+         }
       }
    }
 }
