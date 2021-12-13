@@ -6,7 +6,6 @@
   "refmap": "META-INF/deathfinder.refmap.json",
   "mixins": [
     "ServerPlayerMixin",
-    "ServerPlayerMixin2",
     "TamableAnimalMixin"
   ],
   "client": [

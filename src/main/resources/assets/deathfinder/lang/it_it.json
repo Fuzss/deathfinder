@@ -1,6 +1,4 @@
 {
-  "item.deathfinder.death_compass": "Bussola della morte",
-  "item.deathfinder.death_compass.player": " di %s",
   "death.message.position": "a %s",
   "death.message.dimension": "nella dimensione %s",
   "death.message.distance.blocks": "lontano %s blocchi",

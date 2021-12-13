@@ -1,9 +1,4 @@
 {
-  "item.deathfinder.death_compass": "Death Compass",
-  "item.deathfinder.death_compass.player": " of %s",
-  "item.deathfinder.death_compass.tooltip.position": "X: %s Y: %s Z: %s",
-  "item.deathfinder.death_compass.tooltip.dimension": "Dimension: %s",
-  "item.deathfinder.death_compass.tooltip.date": "Date: %s",
   "death.message.position": "at %s",
   "death.message.dimension": "in dimension %s",
   "death.message.distance.blocks": "%s blocks away",
