@@ -1,6 +1,7 @@
 package fuzs.deathfinder.client;
 
 import fuzs.deathfinder.DeathFinder;
+import fuzs.deathfinder.client.handler.DeathCommandHandler;
 import fuzs.deathfinder.client.handler.DeathScreenHandler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -16,8 +17,10 @@ public class DeathFinderClient {
     }
 
     private static void registerHandlers() {
-        final DeathScreenHandler handler = new DeathScreenHandler();
-        MinecraftForge.EVENT_BUS.addListener(handler::onDrawScreen);
-        MinecraftForge.EVENT_BUS.addListener(handler::onScreenOpen);
+        final DeathScreenHandler deathScreenHandler = new DeathScreenHandler();
+        MinecraftForge.EVENT_BUS.addListener(deathScreenHandler::onDrawScreen);
+        MinecraftForge.EVENT_BUS.addListener(deathScreenHandler::onScreenOpen);
+        final DeathCommandHandler deathCommandHandler = new DeathCommandHandler();
+        MinecraftForge.EVENT_BUS.addListener(deathCommandHandler::onMouseClicked$Pre);
     }
 }

@@ -20,6 +20,10 @@ public class ServerConfig extends AbstractConfig {
         super("");
     }
 
+    public enum TeleportRestriction {
+        NO_ONE, OPERATORS_ONLY, EVERYONE
+    }
+
     @Override
     protected void afterConfigReload() {
         this.messages.afterConfigReload();
@@ -32,6 +36,8 @@ public class ServerConfig extends AbstractConfig {
         public boolean dimensionComponent = true;
         @Config(description = "Add distance component to death messages.")
         public boolean distanceComponent = true;
+        @Config(description = "Who should be allowed to click the position component to teleport there.")
+        public TeleportRestriction allowTeleporting = TeleportRestriction.EVERYONE;
 
         public ComponentsConfig() {
             super("death_message_components");
