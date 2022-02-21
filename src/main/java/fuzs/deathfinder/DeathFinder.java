@@ -38,7 +38,6 @@ public class DeathFinder {
     private static void registerHandlers() {
         final DeathMessageHandler handler = new DeathMessageHandler();
         MinecraftForge.EVENT_BUS.addListener(handler::onLivingDeath);
-        MinecraftForge.EVENT_BUS.addListener(handler::onPlayerClone);
     }
 
     private static void registerMessages() {

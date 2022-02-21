@@ -43,6 +43,9 @@ public class CapabilityController {
      * internal storage for registering capability entries
      */
     private final Multimap<Class<?>, CapabilityData> typeToData = ArrayListMultimap.create();
+    /**
+     * copy data on respawn strategies for player capabilities
+     */
     private final Map<Capability<? extends CapabilityComponent>, PlayerRespawnStrategy> respawnStrategies = Maps.newHashMap();
 
     /**
@@ -89,7 +92,7 @@ public class CapabilityController {
     }
 
     /**
-     * register capabilities for entities
+     * register capabilities for a given object type
      * @param objectType type of object to attach to, only works for generic supertypes
      * @param path path for internal name of this capability, will be used for serialization
      * @param type interface for this capability
@@ -108,7 +111,13 @@ public class CapabilityController {
 
     /**
      * register capability to {@link ItemStack} objects
-     * for more information see {@link #registerCapability}
+     * @param path path for internal name of this capability, will be used for serialization
+     * @param type interface for this capability
+     * @param factory capability factory
+     * @param filter filter for <code>objectType</code>
+     * @param token capability token required to get capability instance from capability manager
+     * @param <T> capability type
+     * @return capability instance from capability manager
      */
     public <T extends CapabilityComponent> Capability<T> registerItemStackCapability(String path, Class<T> type, Supplier<T> factory, Predicate<Object> filter, CapabilityToken<T> token) {
         return this.registerCapability(ItemStack.class, path, type, factory, filter, token);
@@ -116,7 +125,13 @@ public class CapabilityController {
 
     /**
      * register capability to {@link Entity} objects
-     * for more information see {@link #registerCapability}
+     * @param path path for internal name of this capability, will be used for serialization
+     * @param type interface for this capability
+     * @param factory capability factory
+     * @param filter filter for <code>objectType</code>
+     * @param token capability token required to get capability instance from capability manager
+     * @param <T> capability type
+     * @return capability instance from capability manager
      */
     public <T extends CapabilityComponent> Capability<T> registerEntityCapability(String path, Class<T> type, Supplier<T> factory, Predicate<Object> filter, CapabilityToken<T> token) {
         return this.registerCapability(Entity.class, path, type, factory, filter, token);
@@ -124,17 +139,30 @@ public class CapabilityController {
 
     /**
      * register capability to {@link Entity} objects
-     * for more information see {@link #registerCapability}
+     * @param path path for internal name of this capability, will be used for serialization
+     * @param type interface for this capability
+     * @param factory capability factory
+     * @param respawnStrategy how data should be copied when the player object is recreated
+     * @param token capability token required to get capability instance from capability manager
+     * @param <T> capability type
+     * @return capability instance from capability manager
      */
-    public <T extends CapabilityComponent> Capability<T> registerPlayerCapability(String path, Class<T> type, Supplier<T> factory, CapabilityToken<T> token, PlayerRespawnStrategy respawnStrategy) {
-        return this.registerPlayerCapability(path, type, factory, o -> o instanceof Player, token, respawnStrategy);
+    public <T extends CapabilityComponent> Capability<T> registerPlayerCapability(String path, Class<T> type, Supplier<T> factory, PlayerRespawnStrategy respawnStrategy, CapabilityToken<T> token) {
+        return this.registerPlayerCapability(path, type, factory, o -> o instanceof Player, respawnStrategy, token);
     }
 
     /**
      * register capability to {@link Entity} objects
-     * for more information see {@link #registerCapability}
+     * @param path path for internal name of this capability, will be used for serialization
+     * @param type interface for this capability
+     * @param factory capability factory
+     * @param filter filter for <code>objectType</code>
+     * @param respawnStrategy how data should be copied when the player object is recreated
+     * @param token capability token required to get capability instance from capability manager
+     * @param <T> capability type
+     * @return capability instance from capability manager
      */
-    public <T extends CapabilityComponent> Capability<T> registerPlayerCapability(String path, Class<T> type, Supplier<T> factory, Predicate<Object> filter, CapabilityToken<T> token, PlayerRespawnStrategy respawnStrategy) {
+    public <T extends CapabilityComponent> Capability<T> registerPlayerCapability(String path, Class<T> type, Supplier<T> factory, Predicate<Object> filter, PlayerRespawnStrategy respawnStrategy, CapabilityToken<T> token) {
         final Capability<T> capability = this.registerCapability(Entity.class, path, type, factory, filter, token);
         this.respawnStrategies.put(capability, respawnStrategy);
         return capability;
@@ -142,7 +170,13 @@ public class CapabilityController {
 
     /**
      * register capability to {@link BlockEntity} objects
-     * for more information see {@link #registerCapability}
+     * @param path path for internal name of this capability, will be used for serialization
+     * @param type interface for this capability
+     * @param factory capability factory
+     * @param filter filter for <code>objectType</code>
+     * @param token capability token required to get capability instance from capability manager
+     * @param <T> capability type
+     * @return capability instance from capability manager
      */
     public <T extends CapabilityComponent> Capability<T> registerBlockEntityCapability(String path, Class<T> type, Supplier<T> factory, Predicate<Object> filter, CapabilityToken<T> token) {
         return this.registerCapability(BlockEntity.class, path, type, factory, filter, token);
@@ -150,7 +184,13 @@ public class CapabilityController {
 
     /**
      * register capability to {@link Level} objects
-     * for more information see {@link #registerCapability}
+     * @param path path for internal name of this capability, will be used for serialization
+     * @param type interface for this capability
+     * @param factory capability factory
+     * @param filter filter for <code>objectType</code>
+     * @param token capability token required to get capability instance from capability manager
+     * @param <T> capability type
+     * @return capability instance from capability manager
      */
     public <T extends CapabilityComponent> Capability<T> registerLevelCapability(String path, Class<T> type, Supplier<T> factory, Predicate<Object> filter, CapabilityToken<T> token) {
         return this.registerCapability(Level.class, path, type, factory, filter, token);
@@ -158,7 +198,13 @@ public class CapabilityController {
 
     /**
      * register capability to {@link LevelChunk} objects
-     * for more information see {@link #registerCapability}
+     * @param path path for internal name of this capability, will be used for serialization
+     * @param type interface for this capability
+     * @param factory capability factory
+     * @param filter filter for <code>objectType</code>
+     * @param token capability token required to get capability instance from capability manager
+     * @param <T> capability type
+     * @return capability instance from capability manager
      */
     public <T extends CapabilityComponent> Capability<T> registerLevelChunkCapability(String path, Class<T> type, Supplier<T> factory, Predicate<Object> filter, CapabilityToken<T> token) {
         return this.registerCapability(LevelChunk.class, path, type, factory, filter, token);

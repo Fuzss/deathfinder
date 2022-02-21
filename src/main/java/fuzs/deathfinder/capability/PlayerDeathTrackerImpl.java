@@ -45,7 +45,7 @@ public class PlayerDeathTrackerImpl implements PlayerDeathTracker {
 
     @Override
     public void write(CompoundTag tag) {
-        if (this.lastDeathPosition != BlockPos.ZERO) {
+        if (!this.isInvalid()) {
             tag.putInt("LastDeathX", this.lastDeathPosition.getX());
             tag.putInt("LastDeathY", this.lastDeathPosition.getY());
             tag.putInt("LastDeathZ", this.lastDeathPosition.getZ());
