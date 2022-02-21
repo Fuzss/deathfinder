@@ -4,13 +4,12 @@ import fuzs.deathfinder.config.ClientConfig;
 import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.handler.DeathMessageHandler;
 import fuzs.deathfinder.network.client.message.C2SDeathPointTeleportMessage;
+import fuzs.deathfinder.registry.ModRegistry;
 import fuzs.puzzleslib.config.ConfigHolder;
 import fuzs.puzzleslib.config.ConfigHolderImpl;
 import fuzs.puzzleslib.network.MessageDirection;
 import fuzs.puzzleslib.network.NetworkHandler;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
@@ -33,15 +32,13 @@ public class DeathFinder {
         ((ConfigHolderImpl<?, ?>) CONFIG).addConfigs(MOD_ID);
         registerHandlers();
         registerMessages();
-    }
-
-    public static void on(RegisterCapabilitiesEvent evt) {
-
+        ModRegistry.touch();
     }
 
     private static void registerHandlers() {
         final DeathMessageHandler handler = new DeathMessageHandler();
         MinecraftForge.EVENT_BUS.addListener(handler::onLivingDeath);
+        MinecraftForge.EVENT_BUS.addListener(handler::onPlayerClone);
     }
 
     private static void registerMessages() {

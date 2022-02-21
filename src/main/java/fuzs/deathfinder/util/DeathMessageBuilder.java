@@ -3,6 +3,7 @@ package fuzs.deathfinder.util;
 import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
+import fuzs.deathfinder.registry.ModRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,10 +53,19 @@ public class DeathMessageBuilder {
         int x = this.deadEntity.getBlockX(), y = this.deadEntity.getBlockY(), z = this.deadEntity.getBlockZ();
         MutableComponent component = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", x, y, z));
         ServerConfig.TeleportRestriction allowTeleporting = DeathFinder.CONFIG.server().components.allowTeleporting;
-        if (allowTeleporting != ServerConfig.TeleportRestriction.NO_ONE && receiver != null && (receiver.hasPermissions(2) || allowTeleporting == ServerConfig.TeleportRestriction.EVERYONE)) {
-            component.withStyle(style -> style.withColor(ChatFormatting.GREEN)
-                    .withClickEvent(new TeleportClickEvent(this.deadEntity.level.dimension(), x, y, z))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip"))));
+        if (receiver != null) {
+            if (allowTeleporting != ServerConfig.TeleportRestriction.NO_ONE && (receiver.hasPermissions(2) || allowTeleporting == ServerConfig.TeleportRestriction.EVERYONE)) {
+                component.withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                        .withClickEvent(new TeleportClickEvent(this.deadEntity.level.dimension(), x, y, z))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip"))));
+            }
+        }
+        if (receiver == this.deadEntity) {
+            receiver.getCapability(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY).ifPresent(tracker -> {
+                tracker.setLastDeathDimension(this.deadEntity.level.dimension());
+                tracker.setLastDeathPosition(this.deadEntity.blockPosition());
+                tracker.captureDeathDate();
+            });
         }
         return new TranslatableComponent("death.message.position", component);
     }

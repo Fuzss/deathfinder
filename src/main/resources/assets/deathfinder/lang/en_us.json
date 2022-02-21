@@ -4,5 +4,6 @@
   "death.message.distance.blocks": "%s blocks away",
   "death.message.distance.dimension": "very far away",
   "death.message.distance.close": "very close",
+  "death.message.teleport.failure": "You have already teleported to this death position, it is not your most recent one, or the death occurred too long ago.",
   "death.screen.position": "X: %s Y: %s Z: %s"
 }

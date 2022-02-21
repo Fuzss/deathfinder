@@ -1,5 +1,8 @@
 package fuzs.deathfinder.network.chat;
 
+import fuzs.deathfinder.DeathFinder;
+import fuzs.deathfinder.capability.PlayerDeathTracker;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ClickEvent;
@@ -16,6 +19,10 @@ public class TeleportClickEvent extends ClickEvent {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public boolean acceptsTracker(PlayerDeathTracker tracker) {
+        return tracker.isValid(this.dimension, new BlockPos(this.x, this.y, this.z), DeathFinder.CONFIG.server().components.teleportInterval);
     }
 
     public void serialize(FriendlyByteBuf buf) {

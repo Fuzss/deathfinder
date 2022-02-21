@@ -1,6 +1,7 @@
 package fuzs.deathfinder.handler;
 
 import fuzs.deathfinder.DeathFinder;
+import fuzs.deathfinder.registry.ModRegistry;
 import fuzs.deathfinder.util.DeathMessageBuilder;
 import fuzs.deathfinder.util.DeathMessageSender;
 import net.minecraft.ChatFormatting;
@@ -20,11 +21,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 public class DeathMessageHandler {
+    @SubscribeEvent
     public void onLivingDeath(final LivingDeathEvent evt) {
         LivingEntity entity = evt.getEntityLiving();
         if (entity.level.isClientSide || !entity.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
@@ -48,6 +52,19 @@ public class DeathMessageHandler {
                 break;
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onPlayerClone(PlayerEvent.Clone evt) {
+        if (!evt.isWasDeath()) return;
+        // we have to revive caps and then invalidate them again since 1.17+
+        evt.getOriginal().reviveCaps();
+        evt.getOriginal().getCapability(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY).ifPresent(oldTracker -> {
+            evt.getPlayer().getCapability(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY).ifPresent(newTracker -> {
+                newTracker.copy(oldTracker);
+            });
+        });
+        evt.getOriginal().invalidateCaps();
     }
 
     private void handlePlayer(ServerPlayer player, DeathMessageBuilder builder, DeathMessageSender sender) {
