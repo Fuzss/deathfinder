@@ -3,7 +3,7 @@ package fuzs.deathfinder.core.capability.data;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
  * dispatcher for this serializable capability
  * @param <T> capability class
  */
-public class CapabilityDispatcher<T extends CapabilityComponent> implements ICapabilitySerializable<CompoundTag> {
+public class CapabilityDispatcher<T extends CapabilityComponent> implements ICapabilityProvider, CapabilityComponent {
     /**
      * capability wrapper for object
      */
@@ -39,12 +39,12 @@ public class CapabilityDispatcher<T extends CapabilityComponent> implements ICap
     }
 
     @Override
-    public CompoundTag serializeNBT() {
-        return this.storage.serializeNBT();
+    public void write(CompoundTag tag) {
+        this.storage.write(tag);
     }
 
     @Override
-    public void deserializeNBT(CompoundTag tag) {
-        this.storage.deserializeNBT(tag);
+    public void read(CompoundTag tag) {
+        this.storage.read(tag);
     }
 }

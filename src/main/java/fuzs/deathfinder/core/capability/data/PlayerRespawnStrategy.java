@@ -22,8 +22,9 @@ public abstract class PlayerRespawnStrategy {
     public static final PlayerRespawnStrategy INVENTORY = new PlayerRespawnStrategy() {
         @Override
         public void copy(CapabilityComponent oldCapability, CapabilityComponent newCapability, boolean returningFromEnd, boolean keepInventory) {
-            if (returningFromEnd || keepInventory)
-            this.actuallyCopy(oldCapability, newCapability);
+            if (returningFromEnd || keepInventory) {
+                this.actuallyCopy(oldCapability, newCapability);
+            }
         }
     };
     /**
@@ -32,8 +33,9 @@ public abstract class PlayerRespawnStrategy {
     public static final PlayerRespawnStrategy LOSSLESS = new PlayerRespawnStrategy() {
         @Override
         public void copy(CapabilityComponent oldCapability, CapabilityComponent newCapability, boolean returningFromEnd, boolean keepInventory) {
-            if (returningFromEnd)
-            this.actuallyCopy(oldCapability, newCapability);
+            if (returningFromEnd) {
+                this.actuallyCopy(oldCapability, newCapability);
+            }
         }
     };
     /**

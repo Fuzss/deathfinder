@@ -12,11 +12,13 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.event.ScreenOpenEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class DeathScreenHandler {
     private final Minecraft minecraft = Minecraft.getInstance();
     private BlockPos lastPlayerPosition = BlockPos.ZERO;
 
+    @SubscribeEvent
     public void onDrawScreen(final ScreenEvent.DrawScreenEvent evt) {
         if (!DeathFinder.CONFIG.client().deathScreenCoordinates) return;
         Screen deathScreen = evt.getScreen();
@@ -26,6 +28,7 @@ public class DeathScreenHandler {
         }
     }
 
+    @SubscribeEvent
     public void onScreenOpen(final ScreenOpenEvent evt) {
         if (evt.getScreen() instanceof DeathScreen) {
             // when canceling death message on server, death screen package is still sent (arrives after ours though)

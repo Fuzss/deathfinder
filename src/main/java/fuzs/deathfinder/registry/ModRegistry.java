@@ -10,7 +10,7 @@ import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public class ModRegistry {
     private static final CapabilityController CAPABILITIES = CapabilityController.of(DeathFinder.MOD_ID);
-    public static final Capability<PlayerDeathTracker> PLAYER_DEATH_TRACKER_CAPABILITY = CAPABILITIES.registerPlayerCapability("death_tracker", PlayerDeathTracker.class, PlayerDeathTrackerImpl::new, PlayerRespawnStrategy.ALWAYS_COPY, new CapabilityToken<PlayerDeathTracker>() {});
+    public static final Capability<PlayerDeathTracker> PLAYER_DEATH_TRACKER_CAPABILITY = CAPABILITIES.registerPlayerCapability("death_tracker", PlayerDeathTracker.class, player -> new PlayerDeathTrackerImpl(), PlayerRespawnStrategy.ALWAYS_COPY, new CapabilityToken<PlayerDeathTracker>() {});
 
     public static void touch() {
 
