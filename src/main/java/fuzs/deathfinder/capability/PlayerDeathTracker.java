@@ -1,8 +1,8 @@
 package fuzs.deathfinder.capability;
 
 import com.mojang.datafixers.util.Either;
-import fuzs.deathfinder.core.capability.data.CapabilityComponent;
 import fuzs.deathfinder.network.chat.TeleportToDeathProblem;
+import fuzs.puzzleslib.capability.data.CapabilityComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
