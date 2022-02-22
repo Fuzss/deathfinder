@@ -67,7 +67,7 @@ public class CapabilityController {
     public void onAttachCapabilities(final AttachCapabilitiesEvent<?> evt) {
         for (CapabilityData<?> data : this.typeToData.get((Class<?>) evt.getGenericType())) {
             if (data.filter().test(evt.getObject())) {
-                evt.addCapability(data.capabilityKey(), data.capabilityFactory().create(evt.getObject()));
+                evt.addCapability(data.capabilityKey(), data.capabilityFactory().createComponent(evt.getObject()));
             }
         }
     }
@@ -81,7 +81,7 @@ public class CapabilityController {
         for (CapabilityData<?> data : this.typeToData.get(Entity.class)) {
             evt.getOriginal().getCapability(data.capability()).ifPresent(oldCapability -> {
                 evt.getPlayer().getCapability(data.capability()).ifPresent(newCapability -> {
-                    ((EntityCapabilityData<?>) data).respawnStrategy().copy(oldCapability, newCapability, !evt.isWasDeath(), evt.getPlayer().level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY));
+                    ((PlayerCapabilityData<?>) data).respawnStrategy().copy(oldCapability, newCapability, !evt.isWasDeath(), evt.getPlayer().level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY));
                 });
             });
         }
@@ -89,23 +89,16 @@ public class CapabilityController {
     }
 
     /**
-     * register capabilities for a given object type
-     * @param providerType type of object to attach to, only works for generic supertypes
+     * register capability to {@link ItemStack} objects
      * @param capabilityKey path for internal name of this capability, will be used for serialization
      * @param capabilityType interface for this capability
-     * @param capabilityFactory capability factory
-     * @param filter filter for <code>objectType</code>
+     * @param capabilityFactory capability factory called when attaching to an object
+     * @param item              item to apply capability to
      * @param token capability token required to get capability instance from capability manager
-     * @param <T> capability type
+     * @param <C> capability type
      * @return capability instance from capability manager
      */
-    private <T extends CapabilityComponent> Capability<T> registerCapability(Class<? extends ICapabilityProvider> providerType, String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Predicate<Object> filter, CapabilityToken<T> token) {
-        final Capability<T> capability = CapabilityManager.get(token);
-        this.typeToData.put(providerType, new DefaultCapabilityData<>(this.locate(capabilityKey), capability, capabilityType, provider -> new CapabilityDispatcher<>(capability, capabilityFactory.create(provider)), filter));
-        return capability;
-    }
-
-    public <T extends CapabilityComponent> Capability<T> registerItemCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Item item, CapabilityToken<T> token) {
+    public <C extends CapabilityComponent> Capability<C> registerItemCapability(String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, Item item, CapabilityToken<C> token) {
         return this.registerItemCapability(capabilityKey, capabilityType, capabilityFactory, o -> o == item, token);
     }
 
@@ -113,84 +106,102 @@ public class CapabilityController {
      * register capability to {@link ItemStack} objects
      * @param capabilityKey path for internal name of this capability, will be used for serialization
      * @param capabilityType interface for this capability
-     * @param capabilityFactory capability factory
-     * @param filter filter for <code>objectType</code>
+     * @param capabilityFactory capability factory called when attaching to an object
+     * @param itemFilter filter for item, can be used for matching class and instanceof
      * @param token capability token required to get capability instance from capability manager
-     * @param <T> capability type
+     * @param <C> capability type
      * @return capability instance from capability manager
      */
-    public <T extends CapabilityComponent> Capability<T> registerItemCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Predicate<Object> filter, CapabilityToken<T> token) {
-        return this.registerCapability(ItemStack.class, capabilityKey, capabilityType, capabilityFactory, filter, token);
-    }
-
-    public <T extends CapabilityComponent> Capability<T> registerEntityCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Class<Entity> clazz, CapabilityToken<T> token) {
-        return this.registerEntityCapability(capabilityKey, capabilityType, capabilityFactory, clazz::isInstance, PlayerRespawnStrategy.LOSSLESS, token);
-    }
-
-    public <T extends CapabilityComponent> Capability<T> registerPlayerCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, PlayerRespawnStrategy respawnStrategy, CapabilityToken<T> token) {
-        return this.registerEntityCapability(capabilityKey, capabilityType, capabilityFactory, Player.class::isInstance, respawnStrategy, token);
+    public <C extends CapabilityComponent> Capability<C> registerItemCapability(String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, Predicate<Item> itemFilter, CapabilityToken<C> token) {
+        return this.registerCapability(ItemStack.class, capabilityKey, capabilityType, capabilityFactory, o -> o instanceof Item item && itemFilter.test(item), token);
     }
 
     /**
      * register capability to {@link Entity} objects
      * @param capabilityKey path for internal name of this capability, will be used for serialization
      * @param capabilityType interface for this capability
-     * @param capabilityFactory capability factory
-     * @param filter filter for <code>objectType</code>
+     * @param capabilityFactory capability factory called when attaching to an object
+     * @param entityType        entity class to match
      * @param token capability token required to get capability instance from capability manager
-     * @param <T> capability type
+     * @param <C> capability type
      * @return capability instance from capability manager
      */
-    public <T extends CapabilityComponent> Capability<T> registerEntityCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Predicate<Object> filter, PlayerRespawnStrategy respawnStrategy, CapabilityToken<T> token) {
-        final Capability<T> capability = CapabilityManager.get(token);
-        this.typeToData.put(Entity.class, new EntityCapabilityData<>(this.locate(capabilityKey), capability, capabilityType, provider -> new CapabilityDispatcher<>(capability, capabilityFactory.create(provider)), filter, respawnStrategy));
-        return capability;
+    public <C extends CapabilityComponent> Capability<C> registerEntityCapability(String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, Class<Entity> entityType, CapabilityToken<C> token) {
+        return this.registerCapability(Entity.class, capabilityKey, capabilityType, capabilityFactory, entityType::isInstance, token);
     }
 
-    public <T extends CapabilityComponent> Capability<T> registerBlockEntityCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Class<BlockEntity> clazz, CapabilityToken<T> token) {
-        return this.registerBlockEntityCapability(capabilityKey, capabilityType, capabilityFactory, clazz::isInstance, token);
+    /**
+     * register capability to {@link Entity} objects
+     * @param capabilityKey path for internal name of this capability, will be used for serialization
+     * @param capabilityType interface for this capability
+     * @param capabilityFactory capability factory called when attaching to an object
+     * @param respawnStrategy   strategy to use when returning from the end dimension or after dying
+     * @param token capability token required to get capability instance from capability manager
+     * @param <C> capability type
+     * @return capability instance from capability manager
+     */
+    public <C extends CapabilityComponent> Capability<C> registerPlayerCapability(String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, PlayerRespawnStrategy respawnStrategy, CapabilityToken<C> token) {
+        final Capability<C> capability = CapabilityManager.get(token);
+        this.typeToData.put(Entity.class, new PlayerCapabilityData<>(this.locate(capabilityKey), capability, capabilityType, provider -> new CapabilityDispatcher<>(capability, capabilityFactory.createComponent(provider)), Player.class::isInstance, respawnStrategy));
+        return capability;
     }
 
     /**
      * register capability to {@link BlockEntity} objects
      * @param capabilityKey path for internal name of this capability, will be used for serialization
      * @param capabilityType interface for this capability
-     * @param capabilityFactory capability factory
-     * @param filter filter for <code>objectType</code>
+     * @param capabilityFactory capability factory called when attaching to an object
+     * @param blockEntityType   block entity class to match
      * @param token capability token required to get capability instance from capability manager
-     * @param <T> capability type
      * @return capability instance from capability manager
+     * @param <T> block entity type
+     * @param <C> capability type
      */
-    public <T extends CapabilityComponent> Capability<T> registerBlockEntityCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Predicate<Object> filter, CapabilityToken<T> token) {
-        return this.registerCapability(BlockEntity.class, capabilityKey, capabilityType, capabilityFactory, filter, token);
-    }
-
-    /**
-     * register capability to {@link Level} objects
-     * @param capabilityKey path for internal name of this capability, will be used for serialization
-     * @param capabilityType interface for this capability
-     * @param capabilityFactory capability factory
-     * @param filter filter for <code>objectType</code>
-     * @param token capability token required to get capability instance from capability manager
-     * @param <T> capability type
-     * @return capability instance from capability manager
-     */
-    public <T extends CapabilityComponent> Capability<T> registerLevelCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Predicate<Object> filter, CapabilityToken<T> token) {
-        return this.registerCapability(Level.class, capabilityKey, capabilityType, capabilityFactory, filter, token);
+    public <T extends BlockEntity, C extends CapabilityComponent> Capability<C> registerBlockEntityCapability(String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, Class<T> blockEntityType, CapabilityToken<C> token) {
+        return this.registerCapability(BlockEntity.class, capabilityKey, capabilityType, capabilityFactory, blockEntityType::isInstance, token);
     }
 
     /**
      * register capability to {@link LevelChunk} objects
      * @param capabilityKey path for internal name of this capability, will be used for serialization
      * @param capabilityType interface for this capability
-     * @param capabilityFactory capability factory
-     * @param filter filter for <code>objectType</code>
+     * @param capabilityFactory capability factory called when attaching to an object
      * @param token capability token required to get capability instance from capability manager
-     * @param <T> capability type
+     * @param <C> capability type
      * @return capability instance from capability manager
      */
-    public <T extends CapabilityComponent> Capability<T> registerLevelChunkCapability(String capabilityKey, Class<T> capabilityType, CapabilityFactory<T> capabilityFactory, Predicate<Object> filter, CapabilityToken<T> token) {
-        return this.registerCapability(LevelChunk.class, capabilityKey, capabilityType, capabilityFactory, filter, token);
+    public <C extends CapabilityComponent> Capability<C> registerLevelChunkCapability(String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, CapabilityToken<C> token) {
+        return this.registerCapability(LevelChunk.class, capabilityKey, capabilityType, capabilityFactory, o -> true, token);
+    }
+
+    /**
+     * register capability to {@link Level} objects
+     * @param capabilityKey path for internal name of this capability, will be used for serialization
+     * @param capabilityType interface for this capability
+     * @param capabilityFactory capability factory called when attaching to an object
+     * @param token capability token required to get capability instance from capability manager
+     * @param <C> capability type
+     * @return capability instance from capability manager
+     */
+    public <C extends CapabilityComponent> Capability<C> registerLevelCapability(String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, CapabilityToken<C> token) {
+        return this.registerCapability(Level.class, capabilityKey, capabilityType, capabilityFactory, o -> true, token);
+    }
+
+    /**
+     * register capabilities for a given object type
+     * @param providerType type of object to attach to, only works for generic supertypes
+     * @param capabilityKey path for internal name of this capability, will be used for serialization
+     * @param capabilityType interface for this capability
+     * @param capabilityFactory capability factory called when attaching to an object
+     * @param filter filter for <code>providerType</code>
+     * @param token capability token required to get capability instance from capability manager
+     * @param <C> capability type
+     * @return capability instance from capability manager
+     */
+    private <C extends CapabilityComponent> Capability<C> registerCapability(Class<? extends ICapabilityProvider> providerType, String capabilityKey, Class<C> capabilityType, CapabilityFactory<C> capabilityFactory, Predicate<Object> filter, CapabilityToken<C> token) {
+        final Capability<C> capability = CapabilityManager.get(token);
+        this.typeToData.put(providerType, new DefaultCapabilityData<>(this.locate(capabilityKey), capability, capabilityType, provider -> new CapabilityDispatcher<>(capability, capabilityFactory.createComponent(provider)), filter));
+        return capability;
     }
 
     /**
@@ -218,15 +229,34 @@ public class CapabilityController {
         });
     }
 
+    /**
+     * base structure for capability data, we use this since actual data classes are records
+     * @param <C> serializable capability
+     */
     private interface CapabilityData<C extends CapabilityComponent> {
+        /**
+         * @return path for internal name of this capability, will be used for serialization
+         */
         ResourceLocation capabilityKey();
 
+        /**
+         * @return capability instance
+         */
         Capability<C> capability();
 
+        /**
+         * @return interface for this capability
+         */
         Class<C> capabilityType();
 
+        /**
+         * @return capability factory called when attaching to an object
+         */
         CapabilityFactory<CapabilityDispatcher<C>> capabilityFactory();
 
+        /**
+         * @return filter for provider type
+         */
         Predicate<Object> filter();
     }
 
@@ -240,7 +270,7 @@ public class CapabilityController {
     /**
      * just a data class for all the things we need when registering capabilities...
      */
-    private static record EntityCapabilityData<C extends CapabilityComponent>(ResourceLocation capabilityKey, Capability<C> capability, Class<C> capabilityType, CapabilityFactory<CapabilityDispatcher<C>> capabilityFactory, Predicate<Object> filter, PlayerRespawnStrategy respawnStrategy) implements CapabilityData<C> {
-        
+    private static record PlayerCapabilityData<C extends CapabilityComponent>(ResourceLocation capabilityKey, Capability<C> capability, Class<C> capabilityType, CapabilityFactory<CapabilityDispatcher<C>> capabilityFactory, Predicate<Object> filter, PlayerRespawnStrategy respawnStrategy) implements CapabilityData<C> {
+
     }
 }

@@ -1,8 +1,14 @@
 package fuzs.deathfinder.core.capability.data;
 
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
-
+/**
+ * helper interface for creating capability factories
+ * @param <C> serializable capability type
+ */
 @FunctionalInterface
 public interface CapabilityFactory<C extends CapabilityComponent> {
-    C create(Object t);
+    /**
+     * @param t object to create capability from, mostly unused
+     * @return the capability component
+     */
+    C createComponent(Object t);
 }
