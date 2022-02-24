@@ -1,14 +1,12 @@
 package fuzs.deathfinder.handler;
 
 import fuzs.deathfinder.DeathFinder;
+import fuzs.deathfinder.network.message.S2CAdvancedChatMessage;
 import fuzs.deathfinder.util.DeathMessageBuilder;
 import fuzs.deathfinder.util.DeathMessageSender;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.*;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -41,8 +39,8 @@ public class DeathMessageHandler {
                 switch (source) {
                     case PLAYER -> this.handlePlayer((ServerPlayer) entity, builder, DeathMessageSender.from(entity.getServer()));
                     case PET -> {
-                        Player player = (Player) ((TamableAnimal) entity).getOwner();
-                        player.sendMessage(builder.build(player), Util.NIL_UUID);
+                        if (((TamableAnimal) entity).getOwner() instanceof ServerPlayer player)
+                            DeathFinder.NETWORK.sendTo(new S2CAdvancedChatMessage(builder.build(player), ChatType.SYSTEM, Util.NIL_UUID), player);
                     }
                     case VILLAGER -> DeathMessageSender.from(entity.getServer()).sendToAll(builder, false);
                     default -> DeathMessageSender.from(entity.getServer()).sendToAll(builder);

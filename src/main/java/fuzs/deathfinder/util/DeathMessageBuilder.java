@@ -51,7 +51,7 @@ public class DeathMessageBuilder {
         int x = this.deadEntity.getBlockX(), y = this.deadEntity.getBlockY(), z = this.deadEntity.getBlockZ();
         MutableComponent component = ComponentUtils.wrapInSquareBrackets(new TranslatableComponent("chat.coordinates", x, y, z))
                 .withStyle(style -> style.withColor(ChatFormatting.GREEN)
-                .withClickEvent(new TeleportClickEvent(this.deadEntity.level.dimension(), x, y, z))
+                .withClickEvent(new TeleportClickEvent(this.deadEntity.getUUID(), this.deadEntity.level.dimension(), x, y, z))
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableComponent("chat.coordinates.tooltip"))));
         if (receiver == this.deadEntity) {
             receiver.getCapability(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY).ifPresent(tracker -> {

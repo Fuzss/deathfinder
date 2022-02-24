@@ -36,8 +36,8 @@ public class ServerConfig extends AbstractConfig {
         public boolean dimensionComponent = true;
         @Config(description = "Add distance component to death messages.")
         public boolean distanceComponent = true;
-        @Config(description = "Who should be allowed to click the position component to teleport there.")
-        public TeleportRestriction allowTeleporting = TeleportRestriction.EVERYONE;
+        @Config(description = {"Who should be allowed to click the position component to teleport there.", "Normal player can only teleport to their own death position once in a given time frame, if enabled.", "Operators can teleport to any death position without limitations, if enabled."})
+        public TeleportRestriction allowTeleporting = TeleportRestriction.OPERATORS_ONLY;
         @Config(description = {"Amount of seconds in which teleporting to the last death point is possible.", "Set to -1 to remove time limit."})
         @Config.IntRange(min = -1)
         public int teleportInterval = 300;

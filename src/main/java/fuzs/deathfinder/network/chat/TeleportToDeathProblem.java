@@ -8,6 +8,7 @@ public enum TeleportToDeathProblem {
     ALREADY_USED(new TranslatableComponent("death.message.teleport.already_used")),
     TOO_LONG_AGO(new TranslatableComponent("death.message.teleport.too_long_ago")),
     NOT_MOST_RECENT(new TranslatableComponent("death.message.teleport.not_most_recent")),
+    NOT_YOURS(new TranslatableComponent("death.message.teleport.not_yours")),
     OTHER_PROBLEM(new TranslatableComponent("death.message.teleport.other_problem"));
 
     private final Component component;
