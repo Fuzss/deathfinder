@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "package": "fuzs.deathfinder.mixin",
+  "refmap": "deathfinder.refmap.json",
+  "mixins": [
+    "ServerPlayerMixin",
+    "TamableAnimalMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
