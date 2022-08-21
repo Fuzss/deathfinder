@@ -1,7 +1,7 @@
-package fuzs.deathfinder.network.message;
+package fuzs.deathfinder.network;
 
 import fuzs.deathfinder.network.chat.AdvancedClickEvent;
-import fuzs.puzzleslib.network.message.Message;
+import fuzs.puzzleslib.network.Message;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -37,15 +37,13 @@ public class S2CAdvancedSystemChatMessage implements Message<S2CAdvancedSystemCh
     }
 
     @Override
-    public PacketHandler<S2CAdvancedSystemChatMessage> makeHandler() {
-        return new AdvancedChatHandler();
-    }
+    public MessageHandler<S2CAdvancedSystemChatMessage> makeHandler() {
+        return new MessageHandler<>() {
 
-    private static class AdvancedChatHandler extends PacketHandler<S2CAdvancedSystemChatMessage> {
-
-        @Override
-        public void handle(S2CAdvancedSystemChatMessage packet, Player player, Object gameInstance) {
-            ((Minecraft) gameInstance).getChatListener().handleSystemMessage(packet.message, packet.overlay);
-        }
+            @Override
+            public void handle(S2CAdvancedSystemChatMessage message, Player player, Object gameInstance) {
+                ((Minecraft) gameInstance).getChatListener().handleSystemMessage(message.message, message.overlay);
+            }
+        };
     }
 }

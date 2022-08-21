@@ -1,7 +1,7 @@
 package fuzs.deathfinder.util;
 
 import fuzs.deathfinder.DeathFinder;
-import fuzs.deathfinder.network.message.S2CAdvancedSystemChatMessage;
+import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;

@@ -2,7 +2,7 @@ package fuzs.deathfinder.client.handler;
 
 import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
-import fuzs.deathfinder.network.client.message.C2SDeathPointTeleportMessage;
+import fuzs.deathfinder.network.client.C2SDeathPointTeleportMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.Screen;

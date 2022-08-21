@@ -2,7 +2,7 @@ package fuzs.deathfinder.handler;
 
 import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.config.ServerConfig;
-import fuzs.deathfinder.network.message.S2CAdvancedSystemChatMessage;
+import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
 import fuzs.deathfinder.util.DeathMessageBuilder;
 import fuzs.deathfinder.util.DeathMessageSender;
 import net.minecraft.ChatFormatting;
