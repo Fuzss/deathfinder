@@ -23,7 +23,7 @@ public class DeathScreenHandler {
         }
     }
 
-    public boolean onScreenOpen(Screen oldScreen, Screen newScreen) {
+    public boolean onScreenOpen(Screen newScreen) {
         if (newScreen instanceof DeathScreen) {
             // when canceling death message on server, death screen package is still sent (arrives after ours though)
             // so we intercept it here and keep our screen

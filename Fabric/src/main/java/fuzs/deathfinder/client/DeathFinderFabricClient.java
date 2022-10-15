@@ -1,6 +1,6 @@
 package fuzs.deathfinder.client;
 
-import fuzs.deathfinder.api.client.event.ExtraScreenEvents;
+import fuzs.deathfinder.api.client.event.AttemptScreenOpenCallback;
 import fuzs.deathfinder.client.handler.DeathCommandHandler;
 import fuzs.deathfinder.client.handler.DeathScreenHandler;
 import net.fabricmc.api.ClientModInitializer;
@@ -31,9 +31,6 @@ public class DeathFinderFabricClient implements ClientModInitializer {
                 ScreenMouseEvents.allowMouseClick(screen).register(deathCommandHandler::onMouseClicked);
             }
         });
-        ExtraScreenEvents.OPENING.register((oldScreen, newScreen) -> {
-            boolean result = deathScreenHandler.onScreenOpen(oldScreen, newScreen);
-            return result ? newScreen : oldScreen;
-        });
+        AttemptScreenOpenCallback.EVENT.register(deathScreenHandler::onScreenOpen);
     }
 }

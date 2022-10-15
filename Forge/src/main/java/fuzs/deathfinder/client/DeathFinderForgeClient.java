@@ -28,7 +28,7 @@ public class DeathFinderForgeClient {
             }
         });
         MinecraftForge.EVENT_BUS.addListener((final ScreenEvent.Opening evt) -> {
-            boolean result = deathScreenHandler.onScreenOpen(evt.getCurrentScreen(), evt.getNewScreen());
+            boolean result = deathScreenHandler.onScreenOpen(evt.getNewScreen());
             if (!result) evt.setCanceled(true);
         });
         final DeathCommandHandler deathCommandHandler = new DeathCommandHandler();
