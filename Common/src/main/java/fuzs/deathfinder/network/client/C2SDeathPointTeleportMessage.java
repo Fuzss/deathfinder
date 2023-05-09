@@ -7,7 +7,7 @@ import fuzs.deathfinder.init.ModRegistry;
 import fuzs.deathfinder.network.chat.AdvancedClickEvent;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
 import fuzs.deathfinder.network.chat.TeleportToDeathProblem;
-import fuzs.puzzleslib.network.Message;
+import fuzs.puzzleslib.api.network.v2.MessageV2;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -17,7 +17,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 
-public class C2SDeathPointTeleportMessage implements Message<C2SDeathPointTeleportMessage> {
+public class C2SDeathPointTeleportMessage implements MessageV2<C2SDeathPointTeleportMessage> {
     private TeleportClickEvent clickEvent;
 
     public C2SDeathPointTeleportMessage() {

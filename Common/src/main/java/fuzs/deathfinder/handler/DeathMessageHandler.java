@@ -5,6 +5,7 @@ import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
 import fuzs.deathfinder.util.DeathMessageBuilder;
 import fuzs.deathfinder.util.DeathMessageSender;
+import fuzs.puzzleslib.api.event.v1.core.EventResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
@@ -25,8 +26,8 @@ import java.util.function.Predicate;
 
 public class DeathMessageHandler {
     
-    public void onLivingDeath(LivingEntity entity, DamageSource source) {
-        if (entity.level.isClientSide || !entity.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) return;
+    public static EventResult onLivingDeath(LivingEntity entity, DamageSource source) {
+        if (entity.level.isClientSide || !entity.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) return EventResult.PASS;
         for (DeathMessageSource deathSource : DeathMessageSource.values()) {
             if (deathSource.test(entity)) {
                 DeathMessageBuilder builder = DeathMessageBuilder.from(entity)
@@ -34,7 +35,7 @@ public class DeathMessageHandler {
                         .withDimension(DeathFinder.CONFIG.get(ServerConfig.class).components.dimensionComponent)
                         .withDistance(DeathFinder.CONFIG.get(ServerConfig.class).components.distanceComponent);
                 switch (deathSource) {
-                    case PLAYER -> this.handlePlayer((ServerPlayer) entity, builder, DeathMessageSender.from(entity.getServer()));
+                    case PLAYER -> handlePlayer((ServerPlayer) entity, builder, DeathMessageSender.from(entity.getServer()));
                     case PET -> {
                         if (((TamableAnimal) entity).getOwner() instanceof ServerPlayer player)
                             DeathFinder.NETWORK.sendTo(new S2CAdvancedSystemChatMessage(builder.build(player), false), player);
@@ -45,9 +46,10 @@ public class DeathMessageHandler {
                 break;
             }
         }
+        return EventResult.PASS;
     }
 
-    private void handlePlayer(ServerPlayer player, DeathMessageBuilder builder, DeathMessageSender sender) {
+    private static void handlePlayer(ServerPlayer player, DeathMessageBuilder builder, DeathMessageSender sender) {
         Component component = player.getCombatTracker().getDeathMessage();
         player.connection.send(new ClientboundPlayerCombatKillPacket(player.getCombatTracker(), component), PacketSendListener.exceptionallySend(() -> {
             String s = component.getString(256);

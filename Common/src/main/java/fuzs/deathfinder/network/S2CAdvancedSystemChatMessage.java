@@ -1,7 +1,7 @@
 package fuzs.deathfinder.network;
 
 import fuzs.deathfinder.network.chat.AdvancedClickEvent;
-import fuzs.puzzleslib.network.Message;
+import fuzs.puzzleslib.api.network.v2.MessageV2;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -9,7 +9,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 
-public class S2CAdvancedSystemChatMessage implements Message<S2CAdvancedSystemChatMessage> {
+public class S2CAdvancedSystemChatMessage implements MessageV2<S2CAdvancedSystemChatMessage> {
     private Component message;
     private boolean overlay;
 

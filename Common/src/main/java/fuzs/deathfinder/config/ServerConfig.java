@@ -1,13 +1,12 @@
 package fuzs.deathfinder.config;
 
-import fuzs.puzzleslib.config.ConfigCore;
-import fuzs.puzzleslib.config.annotation.Config;
-import fuzs.puzzleslib.config.serialization.EntryCollectionBuilder;
-import net.minecraft.core.Registry;
+import fuzs.puzzleslib.api.config.v3.Config;
+import fuzs.puzzleslib.api.config.v3.ConfigCore;
+import fuzs.puzzleslib.api.config.v3.serialization.ConfigDataSet;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.List;
-import java.util.Set;
 
 public class ServerConfig implements ConfigCore {
     @Config(name = "death_message_components")
@@ -44,18 +43,18 @@ public class ServerConfig implements ConfigCore {
         public boolean namedEntityDeaths = true;
         @Config(description = "Show death message for all entities.")
         public boolean allDeaths = false;
-        @Config(name = "death_message_blacklist", description = {"Entities to be excluded when \"all_deaths\" is enabled.", EntryCollectionBuilder.CONFIG_DESCRIPTION})
-        List<String> deathMessageBlacklistRaw = EntryCollectionBuilder.getKeyList(Registry.ENTITY_TYPE_REGISTRY, EntityType.BAT, EntityType.GLOW_SQUID);
-        @Config(name = "death_message_whitelist", description = {"The only entities to be included when \"all_deaths\" is enabled. Takes precedence over blacklist.", EntryCollectionBuilder.CONFIG_DESCRIPTION})
-        List<String> deathMessageWhitelistRaw = EntryCollectionBuilder.getKeyList(Registry.ENTITY_TYPE_REGISTRY);
+        @Config(name = "death_message_blacklist", description = {"Entities to be excluded when \"all_deaths\" is enabled.", ConfigDataSet.CONFIG_DESCRIPTION})
+        List<String> deathMessageBlacklistRaw = ConfigDataSet.toString(Registries.ENTITY_TYPE, EntityType.BAT, EntityType.GLOW_SQUID);
+        @Config(name = "death_message_whitelist", description = {"The only entities to be included when \"all_deaths\" is enabled. Takes precedence over blacklist.", ConfigDataSet.CONFIG_DESCRIPTION})
+        List<String> deathMessageWhitelistRaw = ConfigDataSet.toString(Registries.ENTITY_TYPE);
 
-        public Set<EntityType<?>> deathMessageBlacklist;
-        public Set<EntityType<?>> deathMessageWhitelist;
+        public ConfigDataSet<EntityType<?>> deathMessageBlacklist;
+        public ConfigDataSet<EntityType<?>> deathMessageWhitelist;
 
         @Override
         public void afterConfigReload() {
-            this.deathMessageBlacklist = EntryCollectionBuilder.of(Registry.ENTITY_TYPE_REGISTRY).buildSet(this.deathMessageBlacklistRaw);
-            this.deathMessageWhitelist = EntryCollectionBuilder.of(Registry.ENTITY_TYPE_REGISTRY).buildSet(this.deathMessageWhitelistRaw);
+            this.deathMessageBlacklist = ConfigDataSet.from(Registries.ENTITY_TYPE, this.deathMessageBlacklistRaw);
+            this.deathMessageWhitelist = ConfigDataSet.from(Registries.ENTITY_TYPE, this.deathMessageWhitelistRaw);
         }
     }
 }

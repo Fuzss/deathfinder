@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "package": "fuzs.deathfinder.mixin",
   "refmap": "deathfinder.refmap.json",
+  "plugin": "fuzs.deathfinder.mixin.ModMixinConfigPlugin",
   "mixins": [
     "ServerPlayerMixin",
     "TamableAnimalMixin"

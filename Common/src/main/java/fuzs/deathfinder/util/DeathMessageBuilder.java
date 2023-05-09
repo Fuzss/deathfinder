@@ -1,14 +1,16 @@
 package fuzs.deathfinder.util;
 
-import fuzs.deathfinder.network.chat.TeleportClickEvent;
 import fuzs.deathfinder.init.ModRegistry;
+import fuzs.deathfinder.network.chat.TeleportClickEvent;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DeathMessageBuilder {
     private final LivingEntity deadEntity;
@@ -68,7 +70,7 @@ public class DeathMessageBuilder {
         return Component.translatable("death.message.dimension", dimension);
     }
 
-    private Component getDistanceComponent(@Nonnull Player receiver) {
+    private Component getDistanceComponent(@NotNull Player receiver) {
         Component component;
         if (this.deadEntity.level.dimension() != receiver.level.dimension()) {
             component = Component.translatable("death.message.distance.dimension");

@@ -6,7 +6,7 @@ import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.capability.PlayerDeathTracker;
 import fuzs.deathfinder.config.ServerConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -54,7 +54,7 @@ public class TeleportClickEvent extends AdvancedClickEvent {
         String string = GsonHelper.getAsString(jsonObject, "uuid", null);
         if (string != null) this.uuid = UUID.fromString(string);
         String string2 = GsonHelper.getAsString(jsonObject, "dimension", null);
-        if (string2 != null) this.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, ResourceLocation.tryParse(string2));
+        if (string2 != null) this.dimension = ResourceKey.create(Registries.DIMENSION, ResourceLocation.tryParse(string2));
         this.x = GsonHelper.getAsInt(jsonObject, "x", 0);
         this.y = GsonHelper.getAsInt(jsonObject, "y", 0);
         this.z = GsonHelper.getAsInt(jsonObject, "z", 0);

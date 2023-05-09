@@ -1,13 +1,10 @@
 package fuzs.deathfinder;
 
 import fuzs.deathfinder.capability.PlayerDeathTracker;
-import fuzs.deathfinder.handler.DeathMessageHandler;
 import fuzs.deathfinder.init.ModRegistry;
-import fuzs.puzzleslib.capability.ForgeCapabilityController;
-import fuzs.puzzleslib.core.CoreServices;
-import net.minecraftforge.common.MinecraftForge;
+import fuzs.puzzleslib.api.capability.v2.ForgeCapabilityHelper;
+import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
@@ -18,19 +15,11 @@ public class DeathFinderForge {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
-        CoreServices.FACTORIES.modConstructor(DeathFinder.MOD_ID).accept(new DeathFinder());
+        ModConstructor.construct(DeathFinder.MOD_ID, DeathFinder::new);
         registerCapabilities();
-        registerHandlers();
     }
 
     private static void registerCapabilities() {
-        ForgeCapabilityController.setCapabilityToken(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY, new CapabilityToken<PlayerDeathTracker>() {});
-    }
-
-    private static void registerHandlers() {
-        final DeathMessageHandler deathMessageHandler = new DeathMessageHandler();
-        MinecraftForge.EVENT_BUS.addListener((final LivingDeathEvent evt) -> {
-            deathMessageHandler.onLivingDeath(evt.getEntity(), evt.getSource());
-        });
+        ForgeCapabilityHelper.setCapabilityToken(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY, new CapabilityToken<PlayerDeathTracker>() {});
     }
 }
