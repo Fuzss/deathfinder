@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 public class DeathMessageHandler {
     
     public static EventResult onLivingDeath(LivingEntity entity, DamageSource source) {
-        if (entity.level.isClientSide || !entity.level.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) return EventResult.PASS;
+        if (entity.level().isClientSide || !entity.level().getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) return EventResult.PASS;
         for (DeathMessageSource deathSource : DeathMessageSource.values()) {
             if (deathSource.test(entity)) {
                 DeathMessageBuilder builder = DeathMessageBuilder.from(entity)
@@ -51,13 +51,13 @@ public class DeathMessageHandler {
 
     private static void handlePlayer(ServerPlayer player, DeathMessageBuilder builder, DeathMessageSender sender) {
         Component component = player.getCombatTracker().getDeathMessage();
-        player.connection.send(new ClientboundPlayerCombatKillPacket(player.getCombatTracker(), component), PacketSendListener.exceptionallySend(() -> {
+        player.connection.send(new ClientboundPlayerCombatKillPacket(player.getId(), component), PacketSendListener.exceptionallySend(() -> {
             String s = component.getString(256);
             Component component1 = Component.translatable("death.attack.message_too_long", (Component.literal(s)).withStyle(ChatFormatting.YELLOW));
             Component component2 = (Component.translatable("death.attack.even_more_magic", player.getDisplayName())).withStyle((p_143420_) -> {
                 return p_143420_.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, component1));
             });
-            return new ClientboundPlayerCombatKillPacket(player.getCombatTracker(), component2);
+            return new ClientboundPlayerCombatKillPacket(player.getId(), component2);
         }));
         Team team = player.getTeam();
         if (team != null && team.getDeathMessageVisibility() != Team.Visibility.ALWAYS) {

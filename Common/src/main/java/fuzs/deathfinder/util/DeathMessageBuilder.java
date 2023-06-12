@@ -53,11 +53,11 @@ public class DeathMessageBuilder {
         int x = this.deadEntity.getBlockX(), y = this.deadEntity.getBlockY(), z = this.deadEntity.getBlockZ();
         MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates", x, y, z))
                 .withStyle(style -> style.withColor(ChatFormatting.GREEN)
-                .withClickEvent(new TeleportClickEvent(this.deadEntity.getUUID(), this.deadEntity.level.dimension(), x, y, z))
+                .withClickEvent(new TeleportClickEvent(this.deadEntity.getUUID(), this.deadEntity.level().dimension(), x, y, z))
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.coordinates.tooltip"))));
         if (receiver == this.deadEntity) {
             ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY.maybeGet(receiver).ifPresent(tracker -> {
-                tracker.setLastDeathDimension(this.deadEntity.level.dimension());
+                tracker.setLastDeathDimension(this.deadEntity.level().dimension());
                 tracker.setLastDeathPosition(this.deadEntity.blockPosition());
                 tracker.captureDeathDate();
             });
@@ -66,13 +66,13 @@ public class DeathMessageBuilder {
     }
 
     private Component getDimensionComponent() {
-        String dimension = this.deadEntity.level.dimension().location().toString();
+        String dimension = this.deadEntity.level().dimension().location().toString();
         return Component.translatable("death.message.dimension", dimension);
     }
 
     private Component getDistanceComponent(@NotNull Player receiver) {
         Component component;
-        if (this.deadEntity.level.dimension() != receiver.level.dimension()) {
+        if (this.deadEntity.level().dimension() != receiver.level().dimension()) {
             component = Component.translatable("death.message.distance.dimension");
         } else {
             double distance = this.deadEntity.position().distanceTo(receiver.position());
