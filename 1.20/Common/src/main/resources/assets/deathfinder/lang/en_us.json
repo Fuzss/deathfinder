@@ -10,5 +10,7 @@
   "death.message.teleport.not_most_recent": "This is not your most recent death point",
   "death.message.teleport.not_yours": "This is not your death point",
   "death.message.teleport.other_problem": "Teleporting to death points is not allowed on this server",
-  "death.screen.position": "X: %s Y: %s Z: %s"
+  "death.screen.position": "X: %s Y: %s Z: %s",
+  "item.minecraft.recovery_compass.position": "X: %s Y: %s Z: %s",
+  "item.minecraft.recovery_compass.dimension": "Dimension: %s"
 }
