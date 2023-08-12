@@ -1,0 +1,16 @@
+{
+  "death.message.position": "at %s",
+  "death.message.dimension": "in dimension %s",
+  "death.message.distance.blocks": "%s blocks away",
+  "death.message.distance.dimension": "very far away",
+  "death.message.distance.close": "very close",
+  "death.message.teleport.missing_permissions": "You do not have the necessary permissions to teleport",
+  "death.message.teleport.already_used": "You have already teleported to a death point",
+  "death.message.teleport.too_long_ago": "This death occurred too long ago",
+  "death.message.teleport.not_most_recent": "This is not your most recent death point",
+  "death.message.teleport.not_yours": "This is not your death point",
+  "death.message.teleport.other_problem": "Teleporting to death points is not allowed on this server",
+  "death.screen.position": "X: %s Y: %s Z: %s",
+  "item.minecraft.recovery_compass.position": "X: %s Y: %s Z: %s",
+  "item.minecraft.recovery_compass.dimension": "Dimension: %s"
+}

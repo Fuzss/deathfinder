@@ -1,0 +1,14 @@
+{
+  "death.message.position": "в %s",
+  "death.message.dimension": "в измерении: %s",
+  "death.message.distance.blocks": "на расстоянии %s блока(ов)",
+  "death.message.distance.dimension": "на очень большом расстоянии",
+  "death.message.distance.close": "очень близко",
+  "death.message.teleport.missing_permissions": "У вас нет требуемых прав для телепортации.",
+  "death.message.teleport.already_used": "Вы уже телепортировались к точке смерти.",
+  "death.message.teleport.too_long_ago": "Эта смерть произошла очень давно.",
+  "death.message.teleport.not_most_recent": "Это не ваша свежая точка смерти.",
+  "death.message.teleport.not_yours": "Это не ваша точка смерти.",
+  "death.message.teleport.other_problem": "На этом сервере телепортироваться к точке смерти не разрешено.",
+  "death.screen.position": "X: %s Y: %s Z: %s"
+}
