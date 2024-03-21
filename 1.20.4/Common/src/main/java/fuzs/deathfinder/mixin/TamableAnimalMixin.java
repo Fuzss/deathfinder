@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(TamableAnimal.class)
 abstract class TamableAnimalMixin extends Animal {
 
-    protected TamableAnimalMixin(EntityType<? extends Animal> p_27557_, Level p_27558_) {
-        super(p_27557_, p_27558_);
+    protected TamableAnimalMixin(EntityType<? extends Animal> entityType, Level level) {
+        super(entityType, level);
     }
 
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)

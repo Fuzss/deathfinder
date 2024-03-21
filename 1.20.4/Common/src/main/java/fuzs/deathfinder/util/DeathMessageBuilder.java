@@ -1,8 +1,10 @@
 package fuzs.deathfinder.util;
 
+import fuzs.deathfinder.capability.DeathTrackerCapability;
 import fuzs.deathfinder.init.ModRegistry;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
@@ -13,6 +15,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DeathMessageBuilder {
+    public static final String KEY_DEATH_MESSAGE_POSITION = "death.message.position";
+    public static final String KEY_DEATH_MESSAGE_DIMENSION = "death.message.dimension";
+    public static final String KEY_DEATH_MESSAGE_DISTANCE_DIMENSION = "death.message.distance.dimension";
+    public static final String KEY_DEATH_MESSAGE_DISTANCE_CLOSE = "death.message.distance.close";
+    public static final String KEY_DEATH_MESSAGE_DISTANCE_BLOCKS = "death.message.distance.blocks";
+
     private final LivingEntity deadEntity;
     private boolean withPosition;
     private boolean withDimension;
@@ -30,6 +38,54 @@ public class DeathMessageBuilder {
         return component;
     }
 
+    private Component getVanillaComponent() {
+        return this.deadEntity.getCombatTracker().getDeathMessage();
+    }
+
+    private Component getPositionComponent(@Nullable Player receiver) {
+        BlockPos position = this.deadEntity.blockPosition();
+        MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates",
+                        position.getX(),
+                        position.getY(),
+                        position.getZ()
+                ))
+                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                        .withClickEvent(new TeleportClickEvent(this.deadEntity.getUUID(),
+                                this.deadEntity.level().dimension(),
+                                position
+                        ))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                Component.translatable("chat.coordinates.tooltip")
+                        )));
+        if (receiver == this.deadEntity) {
+            DeathTrackerCapability capability = ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY.get(receiver);
+            capability.setLastDeathDimension(this.deadEntity.level().dimension());
+            capability.setLastDeathPosition(position);
+            capability.setLastDeathTime();
+        }
+        return Component.translatable(KEY_DEATH_MESSAGE_POSITION, component);
+    }
+
+    private Component getDimensionComponent() {
+        String dimension = this.deadEntity.level().dimension().location().toString();
+        return Component.translatable(KEY_DEATH_MESSAGE_DIMENSION, dimension);
+    }
+
+    private Component getDistanceComponent(@NotNull Player receiver) {
+        Component component;
+        if (this.deadEntity.level().dimension() != receiver.level().dimension()) {
+            component = Component.translatable(KEY_DEATH_MESSAGE_DISTANCE_DIMENSION);
+        } else {
+            double distance = this.deadEntity.position().distanceTo(receiver.position());
+            if (distance < 3.0) {
+                component = Component.translatable(KEY_DEATH_MESSAGE_DISTANCE_CLOSE);
+            } else {
+                component = Component.translatable(KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, (int) distance);
+            }
+        }
+        return Component.literal("(").append(component).append(")");
+    }
+
     public DeathMessageBuilder withPosition(boolean withPosition) {
         this.withPosition = withPosition;
         return this;
@@ -43,46 +99,6 @@ public class DeathMessageBuilder {
     public DeathMessageBuilder withDistance(boolean withDistance) {
         this.withDistance = withDistance;
         return this;
-    }
-
-    private Component getVanillaComponent() {
-        return this.deadEntity.getCombatTracker().getDeathMessage();
-    }
-
-    private Component getPositionComponent(@Nullable Player receiver) {
-        int x = this.deadEntity.getBlockX(), y = this.deadEntity.getBlockY(), z = this.deadEntity.getBlockZ();
-        MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates", x, y, z))
-                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
-                .withClickEvent(new TeleportClickEvent(this.deadEntity.getUUID(), this.deadEntity.level().dimension(), x, y, z))
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.coordinates.tooltip"))));
-        if (receiver == this.deadEntity) {
-            ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY.maybeGet(receiver).ifPresent(tracker -> {
-                tracker.setLastDeathDimension(this.deadEntity.level().dimension());
-                tracker.setLastDeathPosition(this.deadEntity.blockPosition());
-                tracker.captureDeathDate();
-            });
-        }
-        return Component.translatable("death.message.position", component);
-    }
-
-    private Component getDimensionComponent() {
-        String dimension = this.deadEntity.level().dimension().location().toString();
-        return Component.translatable("death.message.dimension", dimension);
-    }
-
-    private Component getDistanceComponent(@NotNull Player receiver) {
-        Component component;
-        if (this.deadEntity.level().dimension() != receiver.level().dimension()) {
-            component = Component.translatable("death.message.distance.dimension");
-        } else {
-            double distance = this.deadEntity.position().distanceTo(receiver.position());
-            if (distance < 3.0) {
-                component = Component.translatable("death.message.distance.close");
-            } else {
-                component = Component.translatable("death.message.distance.blocks", (int) distance);
-            }
-        }
-        return Component.literal("(").append(component).append(")");
     }
 
     public static DeathMessageBuilder from(LivingEntity entity) {

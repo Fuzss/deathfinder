@@ -33,7 +33,7 @@ public class DeathMessageSender {
         if (team != null) {
             final Stream<ServerPlayer> teamMembers = team.getPlayers().stream()
                     .map(this.playerList::getPlayerByName)
-                    .filter(players -> players != null && players != player);
+                    .filter(currentPlayer -> currentPlayer != null && currentPlayer != player);
             this.sendToAll(builder, teamMembers);
         }
     }

@@ -4,10 +4,10 @@ import fuzs.deathfinder.client.handler.CompassTooltipHandler;
 import fuzs.deathfinder.client.handler.DeathCommandHandler;
 import fuzs.deathfinder.client.handler.DeathScreenHandler;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
-import fuzs.puzzleslib.api.client.event.v1.ItemTooltipCallback;
-import fuzs.puzzleslib.api.client.event.v1.ScreenEvents;
-import fuzs.puzzleslib.api.client.event.v1.ScreenMouseEvents;
-import fuzs.puzzleslib.api.client.event.v1.ScreenOpeningCallback;
+import fuzs.puzzleslib.api.client.event.v1.gui.ItemTooltipCallback;
+import fuzs.puzzleslib.api.client.event.v1.gui.ScreenEvents;
+import fuzs.puzzleslib.api.client.event.v1.gui.ScreenMouseEvents;
+import fuzs.puzzleslib.api.client.event.v1.gui.ScreenOpeningCallback;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.DeathScreen;
 

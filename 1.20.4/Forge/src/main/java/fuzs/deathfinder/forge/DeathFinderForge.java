@@ -1,9 +1,9 @@
-package fuzs.deathfinder;
+package fuzs.deathfinder.forge;
 
-import fuzs.deathfinder.capability.PlayerDeathTracker;
+import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.init.ModRegistry;
-import fuzs.puzzleslib.api.capability.v2.ForgeCapabilityHelper;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
+import fuzs.puzzleslib.forge.api.capability.v3.ForgeCapabilityHelper;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -20,6 +20,8 @@ public class DeathFinderForge {
     }
 
     private static void registerCapabilities() {
-        ForgeCapabilityHelper.setCapabilityToken(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY, new CapabilityToken<PlayerDeathTracker>() {});
+        ForgeCapabilityHelper.setCapabilityToken(ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY, new CapabilityToken<>() {
+            // NO-OP
+        });
     }
 }

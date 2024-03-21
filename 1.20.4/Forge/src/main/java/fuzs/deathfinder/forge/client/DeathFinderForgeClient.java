@@ -1,6 +1,7 @@
-package fuzs.deathfinder.client;
+package fuzs.deathfinder.forge.client;
 
 import fuzs.deathfinder.DeathFinder;
+import fuzs.deathfinder.client.DeathFinderClient;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

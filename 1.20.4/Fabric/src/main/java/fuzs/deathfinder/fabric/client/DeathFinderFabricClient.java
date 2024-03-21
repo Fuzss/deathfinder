@@ -1,6 +1,7 @@
-package fuzs.deathfinder.client;
+package fuzs.deathfinder.fabric.client;
 
 import fuzs.deathfinder.DeathFinder;
+import fuzs.deathfinder.client.DeathFinderClient;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import net.fabricmc.api.ClientModInitializer;
 

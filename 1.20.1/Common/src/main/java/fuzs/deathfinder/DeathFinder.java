@@ -13,6 +13,7 @@ import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import fuzs.puzzleslib.api.event.v1.entity.living.LivingDeathCallback;
 import fuzs.puzzleslib.api.network.v2.MessageDirection;
 import fuzs.puzzleslib.api.network.v2.NetworkHandlerV2;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,34 @@ public class DeathFinder implements ModConstructor {
     private static void registerMessages() {
         NETWORK.register(S2CAdvancedSystemChatMessage.class, S2CAdvancedSystemChatMessage::new, MessageDirection.TO_CLIENT);
         NETWORK.register(C2SDeathPointTeleportMessage.class, C2SDeathPointTeleportMessage::new, MessageDirection.TO_SERVER);
+    }
+
+    public void blitNineSliced(GuiGraphics guiGraphics, ResourceLocation resourceLocation, int x, int y, int width, int height, int left, int top, int right, int bottom, int spriteWidth, int spriteHeight, int uOffset, int vOffset) {
+        left = Math.min(left, width / 2);
+        right = Math.min(right, width / 2);
+        top = Math.min(top, height / 2);
+        bottom = Math.min(bottom, height / 2);
+        if (width == spriteWidth && height == spriteHeight) {
+            guiGraphics.blit(resourceLocation, x, y, uOffset, vOffset, width, height);
+        } else if (height == spriteHeight) {
+            guiGraphics.blit(resourceLocation, x, y, uOffset, vOffset, left, height);
+            guiGraphics.blitRepeating(resourceLocation, x + left, y, width - right - left, height, uOffset + left, vOffset, spriteWidth - right - left, spriteHeight);
+            guiGraphics.blit(resourceLocation, x + width - right, y, uOffset + spriteWidth - right, vOffset, right, height);
+        } else if (width == spriteWidth) {
+            guiGraphics.blit(resourceLocation, x, y, uOffset, vOffset, width, top);
+            guiGraphics.blitRepeating(resourceLocation, x, y + top, width, height - bottom - top, uOffset, vOffset + top, spriteWidth, spriteHeight - bottom - top);
+            guiGraphics.blit(resourceLocation, x, y + height - bottom, uOffset, vOffset + spriteHeight - bottom, width, bottom);
+        } else {
+            guiGraphics.blit(resourceLocation, x, y, uOffset, vOffset, left, top);
+            guiGraphics.blitRepeating(resourceLocation, x + left, y, width - right - left, top, uOffset + left, vOffset, spriteWidth - right - left, top);
+            guiGraphics.blit(resourceLocation, x + width - right, y, uOffset + spriteWidth - right, vOffset, right, top);
+            guiGraphics.blit(resourceLocation, x, y + height - bottom, uOffset, vOffset + spriteHeight - bottom, left, bottom);
+            guiGraphics.blitRepeating(resourceLocation, x + left, y + height - bottom, width - right - left, bottom, uOffset + left, vOffset + spriteHeight - bottom, spriteWidth - right - left, bottom);
+            guiGraphics.blit(resourceLocation, x + width - right, y + height - bottom, uOffset + spriteWidth - right, vOffset + spriteHeight - bottom, right, bottom);
+            guiGraphics.blitRepeating(resourceLocation, x, y + top, left, height - bottom - top, uOffset, vOffset + top, left, spriteHeight - bottom - top);
+            guiGraphics.blitRepeating(resourceLocation, x + left, y + top, width - right - left, height - bottom - top, uOffset + left, vOffset + top, spriteWidth - right - left, spriteHeight - bottom - top);
+            guiGraphics.blitRepeating(resourceLocation, x + width - right, y + top, left, height - bottom - top, uOffset + spriteWidth - right, vOffset + top, right, spriteHeight - bottom - top);
+        }
     }
 
     private static void registerHandlers() {
