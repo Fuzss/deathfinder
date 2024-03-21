@@ -12,13 +12,14 @@ import net.minecraft.network.chat.contents.*;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
 public class CustomComponentSerializer {
     public static final MapCodec<Style> STYLE_CODEC = RecordCodecBuilder.mapCodec((instance) -> {
         return instance.group(Style.Serializer.CODEC.fieldOf("style").forGetter(Function.identity()),
-                ExtraCodecs.strictOptionalField(TeleportClickEvent.CODEC, "teleport_click_event")
+                ExtraCodecs.strictOptionalField(TeleportClickEvent.CODEC, "custom_click_event")
                         .forGetter(style -> style.getClickEvent() instanceof TeleportClickEvent teleportClickEvent ?
                                 Optional.of(teleportClickEvent) :
                                 Optional.empty())
@@ -26,39 +27,56 @@ public class CustomComponentSerializer {
             return teleportClickEvent.map(style::withClickEvent).orElse(style);
         });
     });
+    /**
+     * Similar to from {@link ComponentSerialization#CODEC}.
+     */
     public static final Codec<Component> COMPONENT_CODEC = ExtraCodecs.recursive("Component",
             CustomComponentSerializer::createCodec
     );
-
     /**
-     * Same as {@link FriendlyByteBuf#readComponent()}, with our custom codec though.
+     * Similar to {@link TranslatableContents#ARG_CODEC}.
      */
-    public static Component readComponent(FriendlyByteBuf buf) {
-        return buf.readWithCodec(NbtOps.INSTANCE, COMPONENT_CODEC, NbtAccounter.create(2097152L));
-    }
-
+    private static final Codec<Object> TRANSLATABLE_CONTENTS_ARG_CODEC = Codec.either(TranslatableContents.PRIMITIVE_ARG_CODEC,
+                    COMPONENT_CODEC
+            )
+            .xmap(arg -> arg.map(argx -> argx, text -> Objects.requireNonNullElse(text.tryCollapseToString(), text)),
+                    arg -> arg instanceof Component component ? Either.right(component) : Either.left(arg)
+            );
     /**
-     * Same as {@link FriendlyByteBuf#writeComponent(Component)}, with our custom codec though.
+     * Similar to {@link TranslatableContents#CODEC}.
      */
-    public static void writeComponent(FriendlyByteBuf buf, Component component) {
-        buf.writeWithCodec(NbtOps.INSTANCE, COMPONENT_CODEC, component);
-    }
+    public static final MapCodec<TranslatableContents> TRANSLATABLE_CONTENTS_CODEC = RecordCodecBuilder.mapCodec(
+            instance -> instance.group(Codec.STRING.fieldOf("translate").forGetter(TranslatableContents::getKey),
+                    Codec.STRING.optionalFieldOf("fallback")
+                            .forGetter(contents -> Optional.ofNullable(contents.getFallback())),
+                    ExtraCodecs.strictOptionalField(TRANSLATABLE_CONTENTS_ARG_CODEC.listOf(), "with")
+                            .forGetter(contents -> TranslatableContents.adjustArgs(contents.getArgs()))
+            ).apply(instance, TranslatableContents::create));
+    /**
+     * Similar to {@link TranslatableContents#TYPE}.
+     */
+    public static final ComponentContents.Type<TranslatableContents> TRANSLATABLE_CONTENTS_TYPE = new ComponentContents.Type<>(
+            TRANSLATABLE_CONTENTS_CODEC,
+            "translatable"
+    );
 
     /**
      * Copied from {@link ComponentSerialization#createCodec(Codec)} with a different style codec.
      */
     private static Codec<Component> createCodec(Codec<Component> codec) {
+        // use a custom translatable contents type with a custom codec that uses our custom component codec
         ComponentContents.Type<?>[] types = new ComponentContents.Type[]{
                 PlainTextContents.TYPE,
-                TranslatableContents.TYPE,
+                TRANSLATABLE_CONTENTS_TYPE,
                 KeybindContents.TYPE,
                 ScoreContents.TYPE,
                 SelectorContents.TYPE,
                 NbtContents.TYPE
         };
+        // use a custom translatable contents type with a custom codec that uses our custom component codec
         MapCodec<ComponentContents> mapCodec = ComponentSerialization.createLegacyComponentMatcher(types,
                 ComponentContents.Type::codec,
-                ComponentContents::type,
+                contents -> contents.type() == TranslatableContents.TYPE ? TRANSLATABLE_CONTENTS_TYPE : contents.type(),
                 "type"
         );
         Codec<Component> codec2 = RecordCodecBuilder.create(instance -> instance.group(mapCodec.forGetter(Component::getContents),
@@ -74,7 +92,7 @@ public class CustomComponentSerializer {
         }));
         return Codec.either(Codec.either(Codec.STRING, ExtraCodecs.nonEmptyList(codec.listOf())), codec2)
                 .xmap(either -> either.map(eitherx -> eitherx.map(Component::literal,
-                        CustomComponentSerializer::createFromList
+                        ComponentSerialization::createFromList
                 ), content -> content), content -> {
                     String string = content.tryCollapseToString();
                     return string != null ? Either.left(Either.left(string)) : Either.right(content);
@@ -82,15 +100,18 @@ public class CustomComponentSerializer {
     }
 
     /**
-     * Copied from {@link ComponentSerialization#createFromList(List)}.
+     * Same as {@link FriendlyByteBuf#readComponent()}, with our custom codec though.
      */
-    private static MutableComponent createFromList(List<Component> components) {
-        MutableComponent mutableComponent = components.get(0).copy();
+    public static Component readComponent(FriendlyByteBuf buf) {
+        return buf.readWithCodec(NbtOps.INSTANCE, COMPONENT_CODEC,
+                NbtAccounter.create(2097152L)
+        );
+    }
 
-        for (int i = 1; i < components.size(); ++i) {
-            mutableComponent.append(components.get(i));
-        }
-
-        return mutableComponent;
+    /**
+     * Same as {@link FriendlyByteBuf#writeComponent(Component)}, with our custom codec though.
+     */
+    public static void writeComponent(FriendlyByteBuf buf, Component component) {
+        buf.writeWithCodec(NbtOps.INSTANCE, COMPONENT_CODEC, component);
     }
 }

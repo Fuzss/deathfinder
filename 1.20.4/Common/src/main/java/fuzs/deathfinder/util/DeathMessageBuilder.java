@@ -32,9 +32,16 @@ public class DeathMessageBuilder {
 
     public Component build(@Nullable Player receiver) {
         MutableComponent component = Component.empty().append(this.getVanillaComponent());
-        if (this.withPosition) component.append(" ").append(this.getPositionComponent(receiver));
-        if (this.withDimension) component.append(" ").append(this.getDimensionComponent());
-        if (this.withDistance && receiver != null) component.append(" ").append(this.getDistanceComponent(receiver));
+        if (this.withPosition) {
+            component.append(" ").append(this.getPositionComponent(receiver));
+        }
+        if (this.withDimension) {
+            component.append(" ").append(this.getDimensionComponent());
+        }
+        if (this.withDistance && receiver != null) {
+            component.append(" ").append(this.getDistanceComponent(receiver));
+        }
+
         return component;
     }
 
@@ -63,6 +70,7 @@ public class DeathMessageBuilder {
             capability.setLastDeathPosition(position);
             capability.setLastDeathTime();
         }
+
         return Component.translatable(KEY_DEATH_MESSAGE_POSITION, component);
     }
 
@@ -83,6 +91,7 @@ public class DeathMessageBuilder {
                 component = Component.translatable(KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, (int) distance);
             }
         }
+
         return Component.literal("(").append(component).append(")");
     }
 
