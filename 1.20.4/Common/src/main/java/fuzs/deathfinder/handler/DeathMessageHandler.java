@@ -3,7 +3,6 @@ package fuzs.deathfinder.handler;
 import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.init.ModRegistry;
-import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
 import fuzs.deathfinder.util.DeathMessageBuilder;
 import fuzs.deathfinder.util.DeathMessageSender;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
@@ -41,9 +40,7 @@ public class DeathMessageHandler {
                             handlePlayer((ServerPlayer) entity, builder, DeathMessageSender.from(entity.getServer()));
                     case PET -> {
                         if (((TamableAnimal) entity).getOwner() instanceof ServerPlayer player)
-                            DeathFinder.NETWORK.sendTo(new S2CAdvancedSystemChatMessage(builder.build(player), false),
-                                    player
-                            );
+                            ModRegistry.VANILLA_CLIENT_CAPABILITY.get(player).sendSystemMessage(builder.build(player), false);
                     }
                     case VILLAGER -> DeathMessageSender.from(entity.getServer()).sendToAll(builder, false);
                     default -> DeathMessageSender.from(entity.getServer()).sendToAll(builder);

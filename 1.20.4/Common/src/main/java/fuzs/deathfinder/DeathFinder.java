@@ -6,6 +6,7 @@ import fuzs.deathfinder.handler.DeathMessageHandler;
 import fuzs.deathfinder.init.ModRegistry;
 import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
 import fuzs.deathfinder.network.client.C2SDeathPointTeleportMessage;
+import fuzs.deathfinder.network.client.C2SNotifyModPresentMessage;
 import fuzs.puzzleslib.api.config.v3.ConfigHolder;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import fuzs.puzzleslib.api.event.v1.entity.living.LivingDeathCallback;
@@ -32,6 +33,7 @@ public class DeathFinder implements ModConstructor {
     private static void registerMessages() {
         NETWORK.registerClientbound(S2CAdvancedSystemChatMessage.class, S2CAdvancedSystemChatMessage::new);
         NETWORK.registerServerbound(C2SDeathPointTeleportMessage.class, C2SDeathPointTeleportMessage::new);
+        NETWORK.registerServerbound(C2SNotifyModPresentMessage.class, C2SNotifyModPresentMessage::new);
     }
 
     private static void registerEventHandlers() {

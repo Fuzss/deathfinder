@@ -1,7 +1,6 @@
 package fuzs.deathfinder.util;
 
-import fuzs.deathfinder.DeathFinder;
-import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
+import fuzs.deathfinder.init.ModRegistry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -31,7 +30,8 @@ public class DeathMessageSender {
     public void sendMessageToAllTeamMembers(final Player player, DeathMessageBuilder builder) {
         Team team = player.getTeam();
         if (team != null) {
-            final Stream<ServerPlayer> teamMembers = team.getPlayers().stream()
+            final Stream<ServerPlayer> teamMembers = team.getPlayers()
+                    .stream()
                     .map(this.playerList::getPlayerByName)
                     .filter(currentPlayer -> currentPlayer != null && currentPlayer != player);
             this.sendToAll(builder, teamMembers);
@@ -43,7 +43,8 @@ public class DeathMessageSender {
         if (team == null) {
             this.sendToAll(message);
         } else {
-            final Stream<ServerPlayer> notTeamMembers = this.playerList.getPlayers().stream()
+            final Stream<ServerPlayer> notTeamMembers = this.playerList.getPlayers()
+                    .stream()
                     .filter(players -> player.getTeam() != team);
             this.sendToAll(message, notTeamMembers);
         }
@@ -54,7 +55,8 @@ public class DeathMessageSender {
     }
 
     private void sendToAll(DeathMessageBuilder builder, Stream<ServerPlayer> players) {
-        players.forEach(player -> DeathFinder.NETWORK.sendTo(new S2CAdvancedSystemChatMessage(builder.build(player), false), player));
+        players.forEach(player -> ModRegistry.VANILLA_CLIENT_CAPABILITY.get(player)
+                .sendSystemMessage(builder.build(player), false));
     }
 
     public static DeathMessageSender from(MinecraftServer server) {

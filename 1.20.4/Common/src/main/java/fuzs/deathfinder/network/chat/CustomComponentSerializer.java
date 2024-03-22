@@ -14,19 +14,8 @@ import net.minecraft.util.ExtraCodecs;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class CustomComponentSerializer {
-    public static final MapCodec<Style> STYLE_CODEC = RecordCodecBuilder.mapCodec((instance) -> {
-        return instance.group(Style.Serializer.CODEC.fieldOf("style").forGetter(Function.identity()),
-                ExtraCodecs.strictOptionalField(TeleportClickEvent.CODEC, "custom_click_event")
-                        .forGetter(style -> style.getClickEvent() instanceof TeleportClickEvent teleportClickEvent ?
-                                Optional.of(teleportClickEvent) :
-                                Optional.empty())
-        ).apply(instance, (style, teleportClickEvent) -> {
-            return teleportClickEvent.map(style::withClickEvent).orElse(style);
-        });
-    });
     /**
      * Similar to from {@link ComponentSerialization#CODEC}.
      */
@@ -80,16 +69,26 @@ public class CustomComponentSerializer {
                 "type"
         );
         Codec<Component> codec2 = RecordCodecBuilder.create(instance -> instance.group(mapCodec.forGetter(Component::getContents),
-                ExtraCodecs.strictOptionalField(ExtraCodecs.nonEmptyList(codec.listOf()), "extra", List.of())
-                        .forGetter(Component::getSiblings),
-                // this line is changed to use our custom component codec
-                STYLE_CODEC.forGetter(Component::getStyle)
-        ).apply(instance, (componentContents, components, style) -> {
-            MutableComponent mutableComponent = MutableComponent.create(componentContents);
-            components.forEach(mutableComponent::append);
-            mutableComponent.setStyle(style);
-            return mutableComponent;
-        }));
+                        ExtraCodecs.strictOptionalField(ExtraCodecs.nonEmptyList(codec.listOf()), "extra", List.of())
+                                .forGetter(Component::getSiblings),
+                        Style.Serializer.MAP_CODEC.forGetter(Component::getStyle),
+                        // additional line to include our custom component codec
+                        ExtraCodecs.strictOptionalField(TeleportClickEvent.CODEC, "custom_data")
+                                .forGetter(style -> style.getStyle()
+                                        .getClickEvent() instanceof TeleportClickEvent teleportClickEvent ?
+                                        Optional.of(teleportClickEvent) :
+                                        Optional.empty())
+                )
+                .apply(instance,
+                        (ComponentContents componentContents, List<Component> components, Style style, Optional<TeleportClickEvent> optional) -> {
+                            MutableComponent mutableComponent = MutableComponent.create(componentContents);
+                            components.forEach(mutableComponent::append);
+                            mutableComponent.setStyle(style);
+                            optional.ifPresent(teleportClickEvent -> mutableComponent.withStyle(currentStyle -> currentStyle.withClickEvent(
+                                    teleportClickEvent)));
+                            return mutableComponent;
+                        }
+                ));
         return Codec.either(Codec.either(Codec.STRING, ExtraCodecs.nonEmptyList(codec.listOf())), codec2)
                 .xmap(either -> either.map(eitherx -> eitherx.map(Component::literal,
                         ComponentSerialization::createFromList
@@ -103,9 +102,7 @@ public class CustomComponentSerializer {
      * Same as {@link FriendlyByteBuf#readComponent()}, with our custom codec though.
      */
     public static Component readComponent(FriendlyByteBuf buf) {
-        return buf.readWithCodec(NbtOps.INSTANCE, COMPONENT_CODEC,
-                NbtAccounter.create(2097152L)
-        );
+        return buf.readWithCodec(NbtOps.INSTANCE, COMPONENT_CODEC, NbtAccounter.create(2097152L));
     }
 
     /**

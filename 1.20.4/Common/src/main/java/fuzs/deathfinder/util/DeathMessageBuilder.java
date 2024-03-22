@@ -16,10 +16,15 @@ import org.jetbrains.annotations.Nullable;
 
 public class DeathMessageBuilder {
     public static final String KEY_DEATH_MESSAGE_POSITION = "death.message.position";
+    public static final String FALLBACK_DEATH_MESSAGE_POSITION = "at %s";
     public static final String KEY_DEATH_MESSAGE_DIMENSION = "death.message.dimension";
+    public static final String FALLBACK_DEATH_MESSAGE_DIMENSION = "in dimension %s";
     public static final String KEY_DEATH_MESSAGE_DISTANCE_DIMENSION = "death.message.distance.dimension";
+    public static final String FALLBACK_DEATH_MESSAGE_DISTANCE_DIMENSION = "very far away";
     public static final String KEY_DEATH_MESSAGE_DISTANCE_CLOSE = "death.message.distance.close";
+    public static final String FALLBACK_DEATH_MESSAGE_DISTANCE_CLOSE = "very close";
     public static final String KEY_DEATH_MESSAGE_DISTANCE_BLOCKS = "death.message.distance.blocks";
+    public static final String FALLBACK_DEATH_MESSAGE_DISTANCE_BLOCKS = "%s blocks away";
 
     private final LivingEntity deadEntity;
     private boolean withPosition;
@@ -71,24 +76,24 @@ public class DeathMessageBuilder {
             capability.setLastDeathTime();
         }
 
-        return Component.translatable(KEY_DEATH_MESSAGE_POSITION, component);
+        return Component.translatableWithFallback(KEY_DEATH_MESSAGE_POSITION, FALLBACK_DEATH_MESSAGE_POSITION, component);
     }
 
     private Component getDimensionComponent() {
         String dimension = this.deadEntity.level().dimension().location().toString();
-        return Component.translatable(KEY_DEATH_MESSAGE_DIMENSION, dimension);
+        return Component.translatableWithFallback(KEY_DEATH_MESSAGE_DIMENSION, FALLBACK_DEATH_MESSAGE_DIMENSION, dimension);
     }
 
     private Component getDistanceComponent(@NotNull Player receiver) {
         Component component;
         if (this.deadEntity.level().dimension() != receiver.level().dimension()) {
-            component = Component.translatable(KEY_DEATH_MESSAGE_DISTANCE_DIMENSION);
+            component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_DIMENSION, FALLBACK_DEATH_MESSAGE_DISTANCE_DIMENSION);
         } else {
             double distance = this.deadEntity.position().distanceTo(receiver.position());
             if (distance < 3.0) {
-                component = Component.translatable(KEY_DEATH_MESSAGE_DISTANCE_CLOSE);
+                component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_CLOSE, FALLBACK_DEATH_MESSAGE_DISTANCE_CLOSE);
             } else {
-                component = Component.translatable(KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, (int) distance);
+                component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, FALLBACK_DEATH_MESSAGE_DISTANCE_BLOCKS, (int) distance);
             }
         }
 

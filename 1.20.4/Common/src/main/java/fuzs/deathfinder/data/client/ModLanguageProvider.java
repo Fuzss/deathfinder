@@ -15,11 +15,11 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
 
     @Override
     public void addTranslations(TranslationBuilder builder) {
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_POSITION, "at %s");
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DIMENSION, "in dimension %s");
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_DIMENSION, "very far away");
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_CLOSE, "very close");
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, "%s blocks away");
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_POSITION, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_POSITION);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DIMENSION, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DIMENSION);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_DIMENSION, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_DIMENSION);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_CLOSE, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_CLOSE);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_BLOCKS);
         builder.add(DeathScreenHandler.KEY_DEATH_SCREEN_POSITION, "X: %s Y: %s Z: %s");
         builder.add(CompassTooltipHandler.KEY_COMPASS_POSITION, "X: %s Y: %s Z: %s");
         builder.add(CompassTooltipHandler.KEY_COMPASS_DIMENSION, "Dimension: %s");
