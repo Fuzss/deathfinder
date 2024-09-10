@@ -5,6 +5,7 @@ import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.network.chat.TeleportToDeathProblem;
 import fuzs.puzzleslib.api.capability.v3.data.CapabilityComponent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -62,27 +63,27 @@ public class DeathTrackerCapability extends CapabilityComponent<Player> {
     }
 
     @Override
-    public void write(CompoundTag tag) {
+    public void write(CompoundTag compoundTag, HolderLookup.Provider registries) {
         if (!(this.lastDeathPosition == BlockPos.ZERO)) {
-            tag.putInt(TAG_LAST_DEATH_X, this.lastDeathPosition.getX());
-            tag.putInt(TAG_LAST_DEATH_Y, this.lastDeathPosition.getY());
-            tag.putInt(TAG_LAST_DEATH_Z, this.lastDeathPosition.getZ());
+            compoundTag.putInt(TAG_LAST_DEATH_X, this.lastDeathPosition.getX());
+            compoundTag.putInt(TAG_LAST_DEATH_Y, this.lastDeathPosition.getY());
+            compoundTag.putInt(TAG_LAST_DEATH_Z, this.lastDeathPosition.getZ());
             ResourceLocation.CODEC.encodeStart(NbtOps.INSTANCE, this.lastDeathDimension.location()).resultOrPartial(DeathFinder.LOGGER::error).ifPresent((p_9134_) -> {
-                tag.put(TAG_LAST_DEATH_DIMENSION, p_9134_);
+                compoundTag.put(TAG_LAST_DEATH_DIMENSION, p_9134_);
             });
-            tag.putLong(TAG_LAST_DEATH_TIME, this.lastDeathTime);
+            compoundTag.putLong(TAG_LAST_DEATH_TIME, this.lastDeathTime);
         }
     }
 
     @Override
-    public void read(CompoundTag tag) {
-        if (tag.contains(TAG_LAST_DEATH_X, Tag.TAG_ANY_NUMERIC) && tag.contains(TAG_LAST_DEATH_Y, Tag.TAG_ANY_NUMERIC) && tag.contains(TAG_LAST_DEATH_Z, Tag.TAG_ANY_NUMERIC)) {
-            this.lastDeathPosition = new BlockPos(tag.getInt(TAG_LAST_DEATH_X), tag.getInt(TAG_LAST_DEATH_Y), tag.getInt(TAG_LAST_DEATH_Z));
-            if (tag.contains(TAG_LAST_DEATH_DIMENSION)) {
-                this.lastDeathDimension = Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, tag.get(TAG_LAST_DEATH_DIMENSION)).resultOrPartial(DeathFinder.LOGGER::error).orElse(Level.OVERWORLD);
+    public void read(CompoundTag compoundTag, HolderLookup.Provider registries) {
+        if (compoundTag.contains(TAG_LAST_DEATH_X, Tag.TAG_ANY_NUMERIC) && compoundTag.contains(TAG_LAST_DEATH_Y, Tag.TAG_ANY_NUMERIC) && compoundTag.contains(TAG_LAST_DEATH_Z, Tag.TAG_ANY_NUMERIC)) {
+            this.lastDeathPosition = new BlockPos(compoundTag.getInt(TAG_LAST_DEATH_X), compoundTag.getInt(TAG_LAST_DEATH_Y), compoundTag.getInt(TAG_LAST_DEATH_Z));
+            if (compoundTag.contains(TAG_LAST_DEATH_DIMENSION)) {
+                this.lastDeathDimension = Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, compoundTag.get(TAG_LAST_DEATH_DIMENSION)).resultOrPartial(DeathFinder.LOGGER::error).orElse(Level.OVERWORLD);
             }
-            if (tag.contains(TAG_LAST_DEATH_TIME)) {
-                this.lastDeathTime = tag.getLong(TAG_LAST_DEATH_TIME);
+            if (compoundTag.contains(TAG_LAST_DEATH_TIME)) {
+                this.lastDeathTime = compoundTag.getLong(TAG_LAST_DEATH_TIME);
             }
         }
     }

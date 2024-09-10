@@ -8,6 +8,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
@@ -21,7 +22,7 @@ public class CompassTooltipHandler {
     public static final String KEY_COMPASS_POSITION = Items.RECOVERY_COMPASS.getDescriptionId() + ".position";
     public static final String KEY_COMPASS_DIMENSION = Items.RECOVERY_COMPASS.getDescriptionId() + ".dimension";
 
-    public static void onItemTooltip(ItemStack itemStack, @Nullable Player player, List<Component> lines, TooltipFlag tooltipFlag) {
+    public static void onItemTooltip(ItemStack itemStack, List<Component> lines, Item.TooltipContext tooltipContext, @Nullable Player player, TooltipFlag tooltipFlag) {
         if (!DeathFinder.CONFIG.get(ClientConfig.class).recoveryCompassTooltip) return;
         if (itemStack.is(Items.RECOVERY_COMPASS) && player != null) {
             Optional<GlobalPos> lastDeathLocation = player.getLastDeathLocation();

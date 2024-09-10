@@ -19,7 +19,7 @@ public class CustomComponentSerializer {
     /**
      * Similar to from {@link ComponentSerialization#CODEC}.
      */
-    public static final Codec<Component> COMPONENT_CODEC = ExtraCodecs.recursive("Component",
+    public static final Codec<Component> COMPONENT_CODEC = Codec.recursive("Component",
             CustomComponentSerializer::createCodec
     );
     /**
@@ -38,7 +38,7 @@ public class CustomComponentSerializer {
             instance -> instance.group(Codec.STRING.fieldOf("translate").forGetter(TranslatableContents::getKey),
                     Codec.STRING.optionalFieldOf("fallback")
                             .forGetter(contents -> Optional.ofNullable(contents.getFallback())),
-                    ExtraCodecs.strictOptionalField(TRANSLATABLE_CONTENTS_ARG_CODEC.listOf(), "with")
+                    TRANSLATABLE_CONTENTS_ARG_CODEC.listOf().optionalFieldOf("with")
                             .forGetter(contents -> TranslatableContents.adjustArgs(contents.getArgs()))
             ).apply(instance, TranslatableContents::create));
     /**
@@ -69,11 +69,11 @@ public class CustomComponentSerializer {
                 "type"
         );
         Codec<Component> codec2 = RecordCodecBuilder.create(instance -> instance.group(mapCodec.forGetter(Component::getContents),
-                        ExtraCodecs.strictOptionalField(ExtraCodecs.nonEmptyList(codec.listOf()), "extra", List.of())
+                        ExtraCodecs.nonEmptyList(codec.listOf()).optionalFieldOf("extra", List.of())
                                 .forGetter(Component::getSiblings),
                         Style.Serializer.MAP_CODEC.forGetter(Component::getStyle),
                         // additional line to include our custom component codec
-                        ExtraCodecs.strictOptionalField(TeleportClickEvent.CODEC, "custom_data")
+                        TeleportClickEvent.CODEC.optionalFieldOf("custom_data")
                                 .forGetter(style -> style.getStyle()
                                         .getClickEvent() instanceof TeleportClickEvent teleportClickEvent ?
                                         Optional.of(teleportClickEvent) :

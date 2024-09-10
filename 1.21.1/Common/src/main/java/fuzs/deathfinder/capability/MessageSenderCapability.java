@@ -9,9 +9,9 @@ import net.minecraft.server.level.ServerPlayer;
 public class MessageSenderCapability extends CapabilityComponent<ServerPlayer> {
     private boolean isVanillaClient = true;
 
-    public void setVanillaClient() {
-        if (!this.isVanillaClient) {
-            this.isVanillaClient = true;
+    public void setModAvailableForClient() {
+        if (this.isVanillaClient) {
+            this.isVanillaClient = false;
             this.setChanged();
         }
     }
@@ -20,7 +20,7 @@ public class MessageSenderCapability extends CapabilityComponent<ServerPlayer> {
         if (this.isVanillaClient) {
             this.getHolder().sendSystemMessage(component, bypassHiddenChat);
         } else {
-            DeathFinder.NETWORK.sendTo(new S2CAdvancedSystemChatMessage(component, bypassHiddenChat), this.getHolder());
+            DeathFinder.NETWORK.sendTo(this.getHolder(), new S2CAdvancedSystemChatMessage(component, bypassHiddenChat).toClientboundMessage());
         }
     }
 }
