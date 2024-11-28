@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.deathfinder.DeathFinder;
-import fuzs.deathfinder.capability.DeathTrackerCapability;
+import fuzs.deathfinder.attachment.DeathTracker;
 import fuzs.deathfinder.config.ServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -45,14 +46,15 @@ public class TeleportClickEvent extends ClickEvent {
         return String.format("/execute in %s run tp @s %s %s %s", dimension.location(), x, y, z);
     }
 
-    public Either<TeleportToDeathProblem, Unit> acceptsTracker(Player player, DeathTrackerCapability tracker) {
+    public Either<TeleportToDeathProblem, Unit> acceptsTracker(Player player, @Nullable DeathTracker deathTracker) {
         if (!player.getUUID().equals(this.uuid)) {
             return Either.left(TeleportToDeathProblem.NOT_YOURS);
+        } else if (deathTracker == null) {
+            return Either.left(TeleportToDeathProblem.ALREADY_USED);
         } else {
-            return tracker.isValid(this.dimension,
+            return deathTracker.isValid(this.dimension,
                     this.position,
-                    DeathFinder.CONFIG.get(ServerConfig.class).components.teleportInterval
-            );
+                    DeathFinder.CONFIG.get(ServerConfig.class).components.teleportInterval);
         }
     }
 

@@ -1,36 +1,29 @@
 package fuzs.deathfinder.init;
 
 import fuzs.deathfinder.DeathFinder;
-import fuzs.deathfinder.capability.DeathTrackerCapability;
-import fuzs.deathfinder.capability.MessageSenderCapability;
-import fuzs.puzzleslib.api.capability.v3.CapabilityController;
-import fuzs.puzzleslib.api.capability.v3.data.CopyStrategy;
-import fuzs.puzzleslib.api.capability.v3.data.EntityCapabilityKey;
-import fuzs.puzzleslib.api.init.v3.tags.BoundTagFactory;
-import net.minecraft.server.level.ServerPlayer;
+import fuzs.deathfinder.attachment.DeathTracker;
+import fuzs.puzzleslib.api.attachment.v4.DataAttachmentRegistry;
+import fuzs.puzzleslib.api.attachment.v4.DataAttachmentType;
+import fuzs.puzzleslib.api.init.v3.tags.TagFactory;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Unit;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
 
 public class ModRegistry {
-    static final BoundTagFactory TAGS = BoundTagFactory.make(DeathFinder.MOD_ID);
+    static final TagFactory TAGS = TagFactory.make(DeathFinder.MOD_ID);
     public static final TagKey<EntityType<?>> SILENT_DEATHS_ENTITY_TYPE_TAG = TAGS.registerEntityTypeTag("silent_deaths");
 
-    static final CapabilityController CAPABILITIES = CapabilityController.from(DeathFinder.MOD_ID);
-    public static final EntityCapabilityKey<Player, DeathTrackerCapability> PLAYER_DEATH_TRACKER_CAPABILITY = CAPABILITIES.registerEntityCapability(
-            "death_tracker",
-            DeathTrackerCapability.class,
-            DeathTrackerCapability::new,
-            Player.class
-    ).setCopyStrategy(CopyStrategy.ALWAYS);
-    public static final EntityCapabilityKey<ServerPlayer, MessageSenderCapability> VANILLA_CLIENT_CAPABILITY = CAPABILITIES.registerEntityCapability(
-            "message_sender",
-            MessageSenderCapability.class,
-            MessageSenderCapability::new,
-            ServerPlayer.class
-    ).setCopyStrategy(CopyStrategy.ALWAYS);
+    public static final DataAttachmentType<Entity, DeathTracker> DEATH_TRACKER_ATTACHMENT_TYPE = DataAttachmentRegistry.<DeathTracker>entityBuilder()
+            .persistent(DeathTracker.CODEC)
+            .copyOnDeath()
+            .build(DeathFinder.id("death_tracker"));
+    public static final DataAttachmentType<Entity, Unit> MESSAGE_SENDER_ATTACHMENT_TYPE = DataAttachmentRegistry.<Unit>entityBuilder()
+            .persistent(Unit.CODEC)
+            .copyOnDeath()
+            .build(DeathFinder.id("message_sender"));
 
-    public static void touch() {
-
+    public static void bootstrap() {
+        // NO-OP
     }
 }

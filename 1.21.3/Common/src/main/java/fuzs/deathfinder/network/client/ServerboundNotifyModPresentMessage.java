@@ -7,6 +7,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.util.Unit;
 
 public record ServerboundNotifyModPresentMessage() implements ServerboundMessage<ServerboundNotifyModPresentMessage> {
 
@@ -16,7 +17,7 @@ public record ServerboundNotifyModPresentMessage() implements ServerboundMessage
 
             @Override
             public void handle(ServerboundNotifyModPresentMessage message, MinecraftServer server, ServerGamePacketListenerImpl handler, ServerPlayer player, ServerLevel level) {
-                ModRegistry.VANILLA_CLIENT_CAPABILITY.get(player).setModAvailableForClient();
+                ModRegistry.MESSAGE_SENDER_ATTACHMENT_TYPE.set(player, Unit.INSTANCE);
             }
         };
     }

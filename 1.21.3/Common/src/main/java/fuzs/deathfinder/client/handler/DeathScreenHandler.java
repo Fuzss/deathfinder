@@ -2,8 +2,7 @@ package fuzs.deathfinder.client.handler;
 
 import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.config.ClientConfig;
-import fuzs.puzzleslib.api.event.v1.core.EventResult;
-import fuzs.puzzleslib.api.event.v1.data.DefaultedValue;
+import fuzs.puzzleslib.api.event.v1.core.EventResultHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,18 +26,18 @@ public class DeathScreenHandler {
         }
     }
 
-    public static EventResult onScreenOpen(@Nullable Screen oldScreen, DefaultedValue<Screen> newScreen) {
-        if (newScreen.get() instanceof DeathScreen) {
+    public static EventResultHolder<@Nullable Screen> onScreenOpening(@Nullable Screen oldScreen, @Nullable Screen newScreen) {
+        if (newScreen instanceof DeathScreen) {
             // when canceling death message on server, death screen package is still sent (arrives after ours though)
             // so we intercept it here and keep our screen
             if (oldScreen instanceof DeathScreen) {
-                return EventResult.INTERRUPT;
+                return EventResultHolder.interrupt(oldScreen);
             } else {
                 Minecraft minecraft = Minecraft.getInstance();
                 lastPlayerPosition = minecraft.player.blockPosition();
             }
         }
 
-        return EventResult.PASS;
+        return EventResultHolder.pass();
     }
 }

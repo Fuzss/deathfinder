@@ -21,16 +21,17 @@ public class DeathFinder implements ModConstructor {
     public static final String MOD_NAME = "Death Finder";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
-    public static final NetworkHandler NETWORK = NetworkHandler.builder(MOD_ID).registerLegacyClientbound(
-            S2CAdvancedSystemChatMessage.class, S2CAdvancedSystemChatMessage::new).registerLegacyServerbound(
-            C2SDeathPointTeleportMessage.class, C2SDeathPointTeleportMessage::new).registerServerbound(
-            ServerboundNotifyModPresentMessage.class);
-    public static final ConfigHolder CONFIG = ConfigHolder.builder(MOD_ID).client(ClientConfig.class).server(
-            ServerConfig.class);
+    public static final NetworkHandler NETWORK = NetworkHandler.builder(MOD_ID)
+            .registerLegacyClientbound(S2CAdvancedSystemChatMessage.class, S2CAdvancedSystemChatMessage::new)
+            .registerLegacyServerbound(C2SDeathPointTeleportMessage.class, C2SDeathPointTeleportMessage::new)
+            .registerServerbound(ServerboundNotifyModPresentMessage.class);
+    public static final ConfigHolder CONFIG = ConfigHolder.builder(MOD_ID)
+            .client(ClientConfig.class)
+            .server(ServerConfig.class);
 
     @Override
     public void onConstructMod() {
-        ModRegistry.touch();
+        ModRegistry.bootstrap();
         registerEventHandlers();
     }
 

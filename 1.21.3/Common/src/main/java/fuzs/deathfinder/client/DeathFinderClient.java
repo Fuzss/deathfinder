@@ -22,7 +22,7 @@ public class DeathFinderClient implements ClientModConstructor {
     private static void registerHandlers() {
         ScreenEvents.afterRender(DeathScreen.class).register(DeathScreenHandler::onDrawScreen);
         ScreenMouseEvents.beforeMouseClick(ChatScreen.class).register(DeathCommandHandler::onMouseClicked);
-        ScreenOpeningCallback.EVENT.register(DeathScreenHandler::onScreenOpen);
+        ScreenOpeningCallback.EVENT.register(DeathScreenHandler::onScreenOpening);
         ItemTooltipCallback.EVENT.register(CompassTooltipHandler::onItemTooltip);
         ClientPlayerNetworkEvents.LOGGED_IN.register(DeathCommandHandler::onLoggedIn);
     }

@@ -1,6 +1,6 @@
 package fuzs.deathfinder.util;
 
-import fuzs.deathfinder.capability.DeathTrackerCapability;
+import fuzs.deathfinder.attachment.DeathTracker;
 import fuzs.deathfinder.init.ModRegistry;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
 import net.minecraft.ChatFormatting;
@@ -59,41 +59,43 @@ public class DeathMessageBuilder {
         MutableComponent component = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates",
                         position.getX(),
                         position.getY(),
-                        position.getZ()
-                ))
+                        position.getZ()))
                 .withStyle(style -> style.withColor(ChatFormatting.GREEN)
                         .withClickEvent(new TeleportClickEvent(this.deadEntity.getUUID(),
                                 this.deadEntity.level().dimension(),
-                                position
-                        ))
+                                position))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                Component.translatable("chat.coordinates.tooltip")
-                        )));
+                                Component.translatable("chat.coordinates.tooltip"))));
         if (receiver == this.deadEntity) {
-            DeathTrackerCapability capability = ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY.get(receiver);
-            capability.setLastDeathDimension(this.deadEntity.level().dimension());
-            capability.setLastDeathPosition(position);
-            capability.setLastDeathTime();
+            ModRegistry.DEATH_TRACKER_ATTACHMENT_TYPE.set(receiver, DeathTracker.of(this.deadEntity));
         }
 
-        return Component.translatableWithFallback(KEY_DEATH_MESSAGE_POSITION, FALLBACK_DEATH_MESSAGE_POSITION, component);
+        return Component.translatableWithFallback(KEY_DEATH_MESSAGE_POSITION,
+                FALLBACK_DEATH_MESSAGE_POSITION,
+                component);
     }
 
     private Component getDimensionComponent() {
         String dimension = this.deadEntity.level().dimension().location().toString();
-        return Component.translatableWithFallback(KEY_DEATH_MESSAGE_DIMENSION, FALLBACK_DEATH_MESSAGE_DIMENSION, dimension);
+        return Component.translatableWithFallback(KEY_DEATH_MESSAGE_DIMENSION,
+                FALLBACK_DEATH_MESSAGE_DIMENSION,
+                dimension);
     }
 
     private Component getDistanceComponent(@NotNull Player receiver) {
         Component component;
         if (this.deadEntity.level().dimension() != receiver.level().dimension()) {
-            component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_DIMENSION, FALLBACK_DEATH_MESSAGE_DISTANCE_DIMENSION);
+            component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_DIMENSION,
+                    FALLBACK_DEATH_MESSAGE_DISTANCE_DIMENSION);
         } else {
             double distance = this.deadEntity.position().distanceTo(receiver.position());
             if (distance < 3.0) {
-                component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_CLOSE, FALLBACK_DEATH_MESSAGE_DISTANCE_CLOSE);
+                component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_CLOSE,
+                        FALLBACK_DEATH_MESSAGE_DISTANCE_CLOSE);
             } else {
-                component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, FALLBACK_DEATH_MESSAGE_DISTANCE_BLOCKS, (int) distance);
+                component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_BLOCKS,
+                        FALLBACK_DEATH_MESSAGE_DISTANCE_BLOCKS,
+                        (int) distance);
             }
         }
 

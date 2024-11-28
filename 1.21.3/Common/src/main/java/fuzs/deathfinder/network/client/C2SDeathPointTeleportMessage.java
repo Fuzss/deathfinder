@@ -2,7 +2,7 @@ package fuzs.deathfinder.network.client;
 
 import com.mojang.datafixers.util.Either;
 import fuzs.deathfinder.DeathFinder;
-import fuzs.deathfinder.capability.DeathTrackerCapability;
+import fuzs.deathfinder.attachment.DeathTracker;
 import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.init.ModRegistry;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
@@ -37,9 +37,8 @@ public class C2SDeathPointTeleportMessage implements WritableMessage<C2SDeathPoi
             public void handle(C2SDeathPointTeleportMessage message, Player player, Object gameInstance) {
                 this.tryTeleportToDeath(player, message.clickEvent).ifRight(unit -> {
                     ((ServerPlayer) player).server.getCommands()
-                            .performPrefixedCommand(player.createCommandSourceStack().withMaximumPermission(2),
-                                    message.clickEvent.getValue()
-                            );
+                            .performPrefixedCommand(((ServerPlayer) player).createCommandSourceStack()
+                                    .withMaximumPermission(2), message.clickEvent.getValue());
                 }).ifLeft(problem -> {
                     player.displayClientMessage(problem.getComponent(), false);
                 });
@@ -51,9 +50,9 @@ public class C2SDeathPointTeleportMessage implements WritableMessage<C2SDeathPoi
                     if (player.hasPermissions(2)) {
                         return Either.right(Unit.INSTANCE);
                     } else if (teleportRestriction == ServerConfig.TeleportRestriction.EVERYONE) {
-                        DeathTrackerCapability capability = ModRegistry.PLAYER_DEATH_TRACKER_CAPABILITY.get(player);
-                        Either<TeleportToDeathProblem, Unit> problem = event.acceptsTracker(player, capability);
-                        problem.ifRight($ -> capability.clear());
+                        DeathTracker deathTracker = ModRegistry.DEATH_TRACKER_ATTACHMENT_TYPE.get(player);
+                        Either<TeleportToDeathProblem, Unit> problem = event.acceptsTracker(player, deathTracker);
+                        problem.ifRight($ -> ModRegistry.DEATH_TRACKER_ATTACHMENT_TYPE.set(player, null));
                         return problem;
                     } else {
                         return Either.left(TeleportToDeathProblem.MISSING_PERMISSIONS);
