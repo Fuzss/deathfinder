@@ -1,7 +1,7 @@
 package fuzs.deathfinder.capability;
 
 import fuzs.deathfinder.DeathFinder;
-import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
+import fuzs.deathfinder.network.ClientboundAdvancedSystemChatMessage;
 import fuzs.puzzleslib.api.capability.v3.data.CapabilityComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,7 +20,8 @@ public class MessageSenderCapability extends CapabilityComponent<ServerPlayer> {
         if (this.isVanillaClient) {
             this.getHolder().sendSystemMessage(component, bypassHiddenChat);
         } else {
-            DeathFinder.NETWORK.sendTo(this.getHolder(), new S2CAdvancedSystemChatMessage(component, bypassHiddenChat).toClientboundMessage());
+            DeathFinder.NETWORK.sendTo(this.getHolder(),
+                    new ClientboundAdvancedSystemChatMessage(component, bypassHiddenChat));
         }
     }
 }

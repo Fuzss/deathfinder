@@ -4,7 +4,7 @@ import fuzs.deathfinder.config.ClientConfig;
 import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.handler.DeathMessageHandler;
 import fuzs.deathfinder.init.ModRegistry;
-import fuzs.deathfinder.network.S2CAdvancedSystemChatMessage;
+import fuzs.deathfinder.network.ClientboundAdvancedSystemChatMessage;
 import fuzs.deathfinder.network.client.C2SDeathPointTeleportMessage;
 import fuzs.deathfinder.network.client.ServerboundNotifyModPresentMessage;
 import fuzs.puzzleslib.api.config.v3.ConfigHolder;
@@ -21,12 +21,15 @@ public class DeathFinder implements ModConstructor {
     public static final String MOD_NAME = "Death Finder";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
-    public static final NetworkHandler NETWORK = NetworkHandler.builder(MOD_ID).registerLegacyClientbound(
-            S2CAdvancedSystemChatMessage.class, S2CAdvancedSystemChatMessage::new).registerLegacyServerbound(
-            C2SDeathPointTeleportMessage.class, C2SDeathPointTeleportMessage::new).registerServerbound(
-            ServerboundNotifyModPresentMessage.class);
-    public static final ConfigHolder CONFIG = ConfigHolder.builder(MOD_ID).client(ClientConfig.class).server(
-            ServerConfig.class);
+    public static final NetworkHandler NETWORK = NetworkHandler.builder(MOD_ID)
+            .registerSerializer(ClientboundAdvancedSystemChatMessage.class,
+                    ClientboundAdvancedSystemChatMessage.STREAM_CODEC)
+            .registerClientbound(ClientboundAdvancedSystemChatMessage.class)
+            .registerLegacyServerbound(C2SDeathPointTeleportMessage.class, C2SDeathPointTeleportMessage::new)
+            .registerServerbound(ServerboundNotifyModPresentMessage.class);
+    public static final ConfigHolder CONFIG = ConfigHolder.builder(MOD_ID)
+            .client(ClientConfig.class)
+            .server(ServerConfig.class);
 
     @Override
     public void onConstructMod() {

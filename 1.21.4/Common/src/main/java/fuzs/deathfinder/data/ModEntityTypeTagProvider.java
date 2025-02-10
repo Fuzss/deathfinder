@@ -15,6 +15,6 @@ public class ModEntityTypeTagProvider extends AbstractTagProvider<EntityType<?>>
 
     @Override
     public void addTags(HolderLookup.Provider provider) {
-        this.add(ModRegistry.SILENT_DEATHS_ENTITY_TYPE_TAG).add(EntityType.GLOW_SQUID, EntityType.BAT);
+        this.tag(ModRegistry.SILENT_DEATHS_ENTITY_TYPE_TAG).add(EntityType.GLOW_SQUID, EntityType.BAT);
     }
 }
