@@ -72,18 +72,24 @@ public class CustomComponentSerializer {
                         ExtraCodecs.nonEmptyList(codec.listOf())
                                 .optionalFieldOf("extra", List.of())
                                 .forGetter(Component::getSiblings),
-                        Style.Serializer.MAP_CODEC.forGetter(Component::getStyle),
+                        Style.Serializer.MAP_CODEC.forGetter((Component componentX) -> {
+                            if (componentX.getStyle().getClickEvent() instanceof TeleportClickEvent) {
+                                return componentX.getStyle().withClickEvent(null);
+                            } else {
+                                return componentX.getStyle();
+                            }
+                        }),
                         // additional line to include our custom component codec
-                        TeleportClickEvent.CODEC.optionalFieldOf("custom_data")
-                                .forGetter(style ->
-                                        style.getStyle().getClickEvent() instanceof TeleportClickEvent teleportClickEvent ?
+                        TeleportClickEvent.CODEC.optionalFieldOf("teleport_click_event")
+                                .forGetter((Component component) ->
+                                        component.getStyle().getClickEvent() instanceof TeleportClickEvent teleportClickEvent ?
                                                 Optional.of(teleportClickEvent) : Optional.empty()))
                 .apply(instance,
                         (ComponentContents componentContents, List<Component> components, Style style, Optional<TeleportClickEvent> optional) -> {
                             MutableComponent mutableComponent = MutableComponent.create(componentContents);
                             components.forEach(mutableComponent::append);
                             mutableComponent.setStyle(style);
-                            optional.ifPresent(teleportClickEvent -> mutableComponent.withStyle(currentStyle -> currentStyle.withClickEvent(
+                            optional.ifPresent((TeleportClickEvent teleportClickEvent) -> mutableComponent.withStyle((Style styleX) -> styleX.withClickEvent(
                                     teleportClickEvent)));
                             return mutableComponent;
                         }));

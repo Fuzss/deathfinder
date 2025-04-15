@@ -1,10 +1,10 @@
 package fuzs.deathfinder.client.handler;
 
-import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
-import fuzs.deathfinder.network.client.C2SDeathPointTeleportMessage;
+import fuzs.deathfinder.network.client.ServerboundDeathPointTeleportMessage;
 import fuzs.deathfinder.network.client.ServerboundNotifyModPresentMessage;
 import fuzs.puzzleslib.api.event.v1.core.EventResult;
+import fuzs.puzzleslib.api.network.v4.MessageSender;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -27,9 +27,10 @@ public class DeathCommandHandler {
     }
 
     private static boolean handleComponentClicked(Style style) {
-        if (style == null || Screen.hasShiftDown()) return false;
-        if (style.getClickEvent() instanceof TeleportClickEvent event) {
-            DeathFinder.NETWORK.sendToServer(new C2SDeathPointTeleportMessage(event).toServerboundMessage());
+        if (style == null || Screen.hasShiftDown()) {
+            return false;
+        } else if (style.getClickEvent() instanceof TeleportClickEvent event) {
+            MessageSender.broadcast(new ServerboundDeathPointTeleportMessage(event));
             return true;
         } else {
             return false;
@@ -37,6 +38,6 @@ public class DeathCommandHandler {
     }
 
     public static void onLoggedIn(LocalPlayer player, MultiPlayerGameMode multiPlayerGameMode, Connection connection) {
-        DeathFinder.NETWORK.sendMessage(new ServerboundNotifyModPresentMessage());
+        MessageSender.broadcast(new ServerboundNotifyModPresentMessage());
     }
 }

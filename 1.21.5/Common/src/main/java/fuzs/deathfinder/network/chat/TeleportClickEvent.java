@@ -6,13 +6,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.attachment.DeathTracker;
 import fuzs.deathfinder.config.ServerConfig;
+import fuzs.deathfinder.init.ModRegistry;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.nbt.NbtAccounter;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -20,30 +22,43 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
-public class TeleportClickEvent extends ClickEvent {
-    public static final Codec<TeleportClickEvent> CODEC = RecordCodecBuilder.create((instance) -> {
-        return instance.group(UUIDUtil.CODEC.fieldOf("uuid").forGetter((clickEvent) -> {
-            return clickEvent.uuid;
-        }), Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter((clickEvent) -> {
-            return clickEvent.dimension;
-        }), BlockPos.CODEC.fieldOf("position").forGetter((clickEvent) -> {
-            return clickEvent.position;
-        })).apply(instance, TeleportClickEvent::new);
-    });
+public record TeleportClickEvent(UUID uuid, ResourceKey<Level> dimension, BlockPos position) implements ClickEvent {
+    public static final Codec<TeleportClickEvent> CODEC = RecordCodecBuilder.create(instance -> instance.group(UUIDUtil.CODEC.fieldOf(
+                            "uuid").forGetter(TeleportClickEvent::uuid),
+                    Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(TeleportClickEvent::dimension),
+                    BlockPos.CODEC.fieldOf("position").forGetter(TeleportClickEvent::position))
+            .apply(instance, TeleportClickEvent::new));
+    public static final StreamCodec<ByteBuf, TeleportClickEvent> STREAM_CODEC = StreamCodec.composite(UUIDUtil.STREAM_CODEC,
+            TeleportClickEvent::uuid,
+            ResourceKey.streamCodec(Registries.DIMENSION),
+            TeleportClickEvent::dimension,
+            BlockPos.STREAM_CODEC,
+            TeleportClickEvent::position,
+            TeleportClickEvent::new);
 
-    private final UUID uuid;
-    private final ResourceKey<Level> dimension;
-    private final BlockPos position;
-
-    public TeleportClickEvent(UUID uuid, ResourceKey<Level> dimension, BlockPos position) {
-        super(Action.SUGGEST_COMMAND, makeCommand(dimension, position.getX(), position.getY(), position.getZ()));
-        this.uuid = uuid;
-        this.dimension = dimension;
-        this.position = position;
+    public static ClickEvent create(ServerPlayer receiver, UUID uuid, ResourceKey<Level> dimension, BlockPos position) {
+        if (receiver != null && ModRegistry.MESSAGE_SENDER_ATTACHMENT_TYPE.has(receiver)) {
+            return new TeleportClickEvent(uuid, dimension, position);
+        } else {
+            return new ClickEvent.SuggestCommand(makeCommand(dimension, position));
+        }
     }
 
-    private static String makeCommand(ResourceKey<Level> dimension, int x, int y, int z) {
-        return String.format("/execute in %s run tp @s %s %s %s", dimension.location(), x, y, z);
+    private static String makeCommand(ResourceKey<Level> dimension, BlockPos pos) {
+        return String.format("/execute in %s run tp @s %s %s %s",
+                dimension.location(),
+                pos.getX(),
+                pos.getY(),
+                pos.getZ());
+    }
+
+    public String getValue() {
+        return makeCommand(this.dimension, this.position);
+    }
+
+    @Override
+    public Action action() {
+        throw new UnsupportedOperationException();
     }
 
     public Either<TeleportToDeathProblem, Unit> acceptsTracker(Player player, @Nullable DeathTracker deathTracker) {
@@ -56,13 +71,5 @@ public class TeleportClickEvent extends ClickEvent {
                     this.position,
                     DeathFinder.CONFIG.get(ServerConfig.class).components.teleportInterval);
         }
-    }
-
-    public static TeleportClickEvent readTeleportClickEvent(FriendlyByteBuf buf) {
-        return buf.readWithCodec(NbtOps.INSTANCE, CODEC, NbtAccounter.create(2097152L));
-    }
-
-    public static void writeTeleportClickEvent(FriendlyByteBuf buf, TeleportClickEvent teleportClickEvent) {
-        buf.writeWithCodec(NbtOps.INSTANCE, CODEC, teleportClickEvent);
     }
 }

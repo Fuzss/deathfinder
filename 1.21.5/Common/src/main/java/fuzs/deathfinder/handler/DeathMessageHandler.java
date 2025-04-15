@@ -1,7 +1,6 @@
 package fuzs.deathfinder.handler;
 
 import fuzs.deathfinder.DeathFinder;
-import fuzs.deathfinder.util.MessageSenderHelper;
 import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.init.ModRegistry;
 import fuzs.deathfinder.util.DeathMessageBuilder;
@@ -11,6 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,20 +34,20 @@ public class DeathMessageHandler {
         }
         for (DeathMessageSource deathSource : DeathMessageSource.values()) {
             if (deathSource.test(entity)) {
-                DeathMessageBuilder builder = DeathMessageBuilder.from(entity)
-                        .withPosition(DeathFinder.CONFIG.get(ServerConfig.class).components.positionComponent)
+                DeathMessageBuilder builder = new DeathMessageBuilder(entity).withPosition(DeathFinder.CONFIG.get(
+                                ServerConfig.class).components.positionComponent)
                         .withDimension(DeathFinder.CONFIG.get(ServerConfig.class).components.dimensionComponent)
                         .withDistance(DeathFinder.CONFIG.get(ServerConfig.class).components.distanceComponent);
                 switch (deathSource) {
                     case PLAYER ->
-                            handlePlayer((ServerPlayer) entity, builder, DeathMessageSender.from(entity.getServer()));
+                            handlePlayer((ServerPlayer) entity, builder, new DeathMessageSender(entity.getServer()));
                     case PET -> {
-                        if (((TamableAnimal) entity).getOwner() instanceof ServerPlayer player) {
-                            MessageSenderHelper.sendSystemMessage(player, builder.build(player), false);
+                        if (((TamableAnimal) entity).getOwner() instanceof ServerPlayer serverPlayer) {
+                            DeathMessageSender.sendSystemMessage(serverPlayer, builder.build(serverPlayer), false);
                         }
                     }
-                    case VILLAGER -> DeathMessageSender.from(entity.getServer()).sendToAll(builder, false);
-                    default -> DeathMessageSender.from(entity.getServer()).sendToAll(builder);
+                    case VILLAGER -> new DeathMessageSender(entity.getServer()).sendToAll(builder, false);
+                    default -> new DeathMessageSender(entity.getServer()).sendToAll(builder);
                 }
                 break;
             }
@@ -57,15 +57,15 @@ public class DeathMessageHandler {
     }
 
     private static void handlePlayer(ServerPlayer player, DeathMessageBuilder builder, DeathMessageSender sender) {
-        Component component = player.getCombatTracker().getDeathMessage();
-        player.connection.send(new ClientboundPlayerCombatKillPacket(player.getId(), component),
+        Component deathMessageComponent = player.getCombatTracker().getDeathMessage();
+        player.connection.send(new ClientboundPlayerCombatKillPacket(player.getId(), deathMessageComponent),
                 PacketSendListener.exceptionallySend(() -> {
-                    String s = component.getString(256);
-                    Component component1 = Component.translatable("death.attack.message_too_long",
+                    String s = deathMessageComponent.getString(256);
+                    Component component = Component.translatable("death.attack.message_too_long",
                             Component.literal(s).withStyle(ChatFormatting.YELLOW));
                     Component component2 = (Component.translatable("death.attack.even_more_magic",
-                            player.getDisplayName())).withStyle((style) -> {
-                        return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, component1));
+                            player.getDisplayName())).withStyle((Style style) -> {
+                        return style.withHoverEvent(new HoverEvent.ShowText(component));
                     });
                     return new ClientboundPlayerCombatKillPacket(player.getId(), component2);
                 }));
@@ -86,14 +86,15 @@ public class DeathMessageHandler {
         // players should be handled differently (in regard to teams) even when allDeaths is active
         PLAYER(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.allDeaths ||
                 DeathFinder.CONFIG.get(ServerConfig.class).messages.playerDeaths,
-                entity -> entity instanceof ServerPlayer && !entity.isSpectator()),
+                (LivingEntity entity) -> entity instanceof ServerPlayer && !entity.isSpectator()),
         ALL(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.allDeaths,
-                entity -> !entity.getType().is(ModRegistry.SILENT_DEATHS_ENTITY_TYPE_TAG)),
+                (LivingEntity entity) -> !entity.getType().is(ModRegistry.SILENT_DEATHS_ENTITY_TYPE_TAG)),
         NAMED(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.namedEntityDeaths, Entity::hasCustomName),
         VILLAGER(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.villagerDeaths,
-                entity -> entity instanceof Villager),
+                (LivingEntity entity) -> entity instanceof Villager),
         PET(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.petDeaths,
-                entity -> entity instanceof TamableAnimal animal && animal.getOwner() instanceof ServerPlayer);
+                (LivingEntity entity) -> entity instanceof TamableAnimal animal &&
+                        animal.getOwner() instanceof ServerPlayer);
 
         private final BooleanSupplier config;
         private final Predicate<LivingEntity> predicate;

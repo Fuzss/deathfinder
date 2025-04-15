@@ -7,41 +7,36 @@ import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.init.ModRegistry;
 import fuzs.deathfinder.network.chat.TeleportClickEvent;
 import fuzs.deathfinder.network.chat.TeleportToDeathProblem;
-import fuzs.puzzleslib.api.network.v2.WritableMessage;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import fuzs.puzzleslib.api.network.v4.message.MessageListener;
+import fuzs.puzzleslib.api.network.v4.message.play.ServerboundPlayMessage;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 
-public class C2SDeathPointTeleportMessage implements WritableMessage<C2SDeathPointTeleportMessage> {
-    private final TeleportClickEvent clickEvent;
-
-    public C2SDeathPointTeleportMessage(TeleportClickEvent clickEvent) {
-        this.clickEvent = clickEvent;
-    }
-
-    public C2SDeathPointTeleportMessage(FriendlyByteBuf buf) {
-        this.clickEvent = TeleportClickEvent.readTeleportClickEvent(buf);
-    }
+public record ServerboundDeathPointTeleportMessage(TeleportClickEvent clickEvent) implements ServerboundPlayMessage {
+    public static final StreamCodec<ByteBuf, ServerboundDeathPointTeleportMessage> STREAM_CODEC = StreamCodec.composite(
+            TeleportClickEvent.STREAM_CODEC,
+            ServerboundDeathPointTeleportMessage::clickEvent,
+            ServerboundDeathPointTeleportMessage::new);
 
     @Override
-    public void write(FriendlyByteBuf buf) {
-        TeleportClickEvent.writeTeleportClickEvent(buf, this.clickEvent);
-    }
-
-    @Override
-    public MessageHandler<C2SDeathPointTeleportMessage> makeHandler() {
-        return new MessageHandler<>() {
-
+    public MessageListener<Context> getListener() {
+        return new MessageListener<Context>() {
             @Override
-            public void handle(C2SDeathPointTeleportMessage message, Player player, Object gameInstance) {
-                this.tryTeleportToDeath(player, message.clickEvent).ifRight(unit -> {
-                    ((ServerPlayer) player).server.getCommands()
-                            .performPrefixedCommand(((ServerPlayer) player).createCommandSourceStack()
-                                    .withMaximumPermission(2), message.clickEvent.getValue());
-                }).ifLeft(problem -> {
-                    player.displayClientMessage(problem.getComponent(), false);
-                });
+            public void accept(Context context) {
+                this.tryTeleportToDeath(context.player(), ServerboundDeathPointTeleportMessage.this.clickEvent)
+                        .ifRight((Unit unit) -> {
+                            context.server()
+                                    .getCommands()
+                                    .performPrefixedCommand(context.player()
+                                                    .createCommandSourceStack()
+                                                    .withMaximumPermission(2),
+                                            ServerboundDeathPointTeleportMessage.this.clickEvent.getValue());
+                        })
+                        .ifLeft((TeleportToDeathProblem problem) -> {
+                            context.player().displayClientMessage(problem.getComponent(), false);
+                        });
             }
 
             private Either<TeleportToDeathProblem, Unit> tryTeleportToDeath(Player player, TeleportClickEvent event) {

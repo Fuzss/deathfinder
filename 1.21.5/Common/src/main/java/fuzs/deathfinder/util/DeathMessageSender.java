@@ -1,5 +1,10 @@
 package fuzs.deathfinder.util;
 
+import fuzs.deathfinder.init.ModRegistry;
+import fuzs.deathfinder.network.ClientboundAdvancedSystemChatMessage;
+import fuzs.puzzleslib.api.network.v4.MessageSender;
+import fuzs.puzzleslib.api.network.v4.PlayerSet;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -9,12 +14,12 @@ import net.minecraft.world.scores.Team;
 import java.util.stream.Stream;
 
 public class DeathMessageSender {
-    private final MinecraftServer server;
+    private final MinecraftServer minecraftServer;
     private final PlayerList playerList;
 
-    private DeathMessageSender(MinecraftServer server) {
-        this.server = server;
-        this.playerList = server.getPlayerList();
+    public DeathMessageSender(MinecraftServer minecraftServer) {
+        this.minecraftServer = minecraftServer;
+        this.playerList = minecraftServer.getPlayerList();
     }
 
     public void sendToAll(DeathMessageBuilder builder) {
@@ -26,38 +31,45 @@ public class DeathMessageSender {
         this.sendToAll(builder, this.playerList.getPlayers().stream());
     }
 
-    public void sendMessageToAllTeamMembers(final Player player, DeathMessageBuilder builder) {
+    public void sendMessageToAllTeamMembers(Player player, DeathMessageBuilder builder) {
         Team team = player.getTeam();
         if (team != null) {
             final Stream<ServerPlayer> teamMembers = team.getPlayers()
                     .stream()
                     .map(this.playerList::getPlayerByName)
-                    .filter(currentPlayer -> currentPlayer != null && currentPlayer != player);
+                    .filter((ServerPlayer serverPlayer) -> serverPlayer != null && serverPlayer != player);
             this.sendToAll(builder, teamMembers);
         }
     }
 
-    public void sendMessageToTeamOrAllPlayers(final Player player, DeathMessageBuilder message) {
+    public void sendMessageToTeamOrAllPlayers(Player player, DeathMessageBuilder message) {
         Team team = player.getTeam();
         if (team == null) {
             this.sendToAll(message);
         } else {
             final Stream<ServerPlayer> notTeamMembers = this.playerList.getPlayers()
                     .stream()
-                    .filter(players -> player.getTeam() != team);
+                    .filter((ServerPlayer serverPlayer) -> player.getTeam() != team);
             this.sendToAll(message, notTeamMembers);
         }
     }
 
     private void sendToConsole(DeathMessageBuilder builder) {
-        this.server.sendSystemMessage(builder.build(null));
+        this.minecraftServer.sendSystemMessage(builder.build(null));
     }
 
     private void sendToAll(DeathMessageBuilder builder, Stream<ServerPlayer> players) {
-        players.forEach(player -> MessageSenderHelper.sendSystemMessage(player, builder.build(player), false));
+        players.forEach((ServerPlayer serverPlayer) -> {
+            sendSystemMessage(serverPlayer, builder.build(serverPlayer), false);
+        });
     }
 
-    public static DeathMessageSender from(MinecraftServer server) {
-        return new DeathMessageSender(server);
+    public static void sendSystemMessage(ServerPlayer serverPlayer, Component component, boolean bypassHiddenChat) {
+        if (ModRegistry.MESSAGE_SENDER_ATTACHMENT_TYPE.has(serverPlayer)) {
+            MessageSender.broadcast(PlayerSet.ofPlayer(serverPlayer),
+                    new ClientboundAdvancedSystemChatMessage(component, bypassHiddenChat));
+        } else {
+            serverPlayer.sendSystemMessage(component, bypassHiddenChat);
+        }
     }
 }
