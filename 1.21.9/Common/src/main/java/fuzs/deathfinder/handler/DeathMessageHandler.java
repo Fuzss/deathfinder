@@ -28,10 +28,11 @@ import java.util.function.Predicate;
 public class DeathMessageHandler {
 
     public static EventResult onLivingDeath(LivingEntity entity, DamageSource source) {
-        if (!(entity.level() instanceof ServerLevel serverLevel) ||
-                !serverLevel.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
+        if (!(entity.level() instanceof ServerLevel serverLevel) || !serverLevel.getGameRules()
+                .getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
             return EventResult.PASS;
         }
+
         for (DeathMessageSource deathSource : DeathMessageSource.values()) {
             if (deathSource.test(entity)) {
                 DeathMessageBuilder builder = new DeathMessageBuilder(entity).withPosition(DeathFinder.CONFIG.get(
@@ -39,16 +40,19 @@ public class DeathMessageHandler {
                         .withDimension(DeathFinder.CONFIG.get(ServerConfig.class).components.dimensionComponent)
                         .withDistance(DeathFinder.CONFIG.get(ServerConfig.class).components.distanceComponent);
                 switch (deathSource) {
-                    case PLAYER ->
-                            handlePlayer((ServerPlayer) entity, builder, new DeathMessageSender(entity.getServer()));
+                    case PLAYER -> handlePlayer((ServerPlayer) entity,
+                            builder,
+                            new DeathMessageSender(serverLevel.getServer()));
                     case PET -> {
                         if (((TamableAnimal) entity).getOwner() instanceof ServerPlayer serverPlayer) {
-                            DeathMessageSender.sendSystemMessage(serverPlayer, builder.build(serverPlayer), false);
+                            Component component = builder.build(serverPlayer);
+                            serverPlayer.sendSystemMessage(component, false);
                         }
                     }
-                    case VILLAGER -> new DeathMessageSender(entity.getServer()).sendToAll(builder, false);
-                    default -> new DeathMessageSender(entity.getServer()).sendToAll(builder);
+                    case VILLAGER -> new DeathMessageSender(serverLevel.getServer()).sendToAll(builder, false);
+                    default -> new DeathMessageSender(serverLevel.getServer()).sendToAll(builder);
                 }
+
                 break;
             }
         }
@@ -84,8 +88,8 @@ public class DeathMessageHandler {
     private enum DeathMessageSource {
         // enum order matters
         // players should be handled differently (in regard to teams) even when allDeaths is active
-        PLAYER(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.allDeaths ||
-                DeathFinder.CONFIG.get(ServerConfig.class).messages.playerDeaths,
+        PLAYER(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.allDeaths || DeathFinder.CONFIG.get(
+                ServerConfig.class).messages.playerDeaths,
                 (LivingEntity entity) -> entity instanceof ServerPlayer && !entity.isSpectator()),
         ALL(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.allDeaths,
                 (LivingEntity entity) -> !entity.getType().is(ModRegistry.SILENT_DEATHS_ENTITY_TYPE_TAG)),
@@ -93,8 +97,8 @@ public class DeathMessageHandler {
         VILLAGER(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.villagerDeaths,
                 (LivingEntity entity) -> entity instanceof Villager),
         PET(() -> DeathFinder.CONFIG.get(ServerConfig.class).messages.petDeaths,
-                (LivingEntity entity) -> entity instanceof TamableAnimal animal &&
-                        animal.getOwner() instanceof ServerPlayer);
+                (LivingEntity entity) -> entity instanceof TamableAnimal animal
+                        && animal.getOwner() instanceof ServerPlayer);
 
         private final BooleanSupplier config;
         private final Predicate<LivingEntity> predicate;
@@ -104,8 +108,8 @@ public class DeathMessageHandler {
             this.predicate = predicate;
         }
 
-        public boolean test(LivingEntity entity) {
-            return this.config.getAsBoolean() && this.predicate.test(entity);
+        public boolean test(LivingEntity livingEntity) {
+            return this.config.getAsBoolean() && this.predicate.test(livingEntity);
         }
     }
 }

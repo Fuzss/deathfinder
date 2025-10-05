@@ -1,4 +1,4 @@
-package fuzs.deathfinder.data;
+package fuzs.deathfinder.data.tags;
 
 import fuzs.deathfinder.init.ModRegistry;
 import fuzs.puzzleslib.api.data.v2.core.DataProviderContext;

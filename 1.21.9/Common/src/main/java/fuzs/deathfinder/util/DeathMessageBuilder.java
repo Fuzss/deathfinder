@@ -2,7 +2,7 @@ package fuzs.deathfinder.util;
 
 import fuzs.deathfinder.attachment.DeathTracker;
 import fuzs.deathfinder.init.ModRegistry;
-import fuzs.deathfinder.network.chat.TeleportClickEvent;
+import fuzs.deathfinder.network.chat.CustomTeleportClickEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.*;
@@ -59,7 +59,7 @@ public class DeathMessageBuilder {
                         position.getY(),
                         position.getZ()))
                 .withStyle((Style style) -> style.withColor(ChatFormatting.GREEN)
-                        .withClickEvent(TeleportClickEvent.create(receiver,
+                        .withClickEvent(CustomTeleportClickEvent.getClickEvent(receiver,
                                 this.deadEntity.getUUID(),
                                 this.deadEntity.level().dimension(),
                                 position))

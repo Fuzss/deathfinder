@@ -1,9 +1,5 @@
 package fuzs.deathfinder.util;
 
-import fuzs.deathfinder.init.ModRegistry;
-import fuzs.deathfinder.network.ClientboundAdvancedSystemChatMessage;
-import fuzs.puzzleslib.api.network.v4.MessageSender;
-import fuzs.puzzleslib.api.network.v4.PlayerSet;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -60,16 +56,8 @@ public class DeathMessageSender {
 
     private void sendToAll(DeathMessageBuilder builder, Stream<ServerPlayer> players) {
         players.forEach((ServerPlayer serverPlayer) -> {
-            sendSystemMessage(serverPlayer, builder.build(serverPlayer), false);
+            Component component = builder.build(serverPlayer);
+            serverPlayer.sendSystemMessage(component, false);
         });
-    }
-
-    public static void sendSystemMessage(ServerPlayer serverPlayer, Component component, boolean bypassHiddenChat) {
-        if (ModRegistry.MESSAGE_SENDER_ATTACHMENT_TYPE.has(serverPlayer)) {
-            MessageSender.broadcast(PlayerSet.ofPlayer(serverPlayer),
-                    new ClientboundAdvancedSystemChatMessage(component, bypassHiddenChat));
-        } else {
-            serverPlayer.sendSystemMessage(component, bypassHiddenChat);
-        }
     }
 }
