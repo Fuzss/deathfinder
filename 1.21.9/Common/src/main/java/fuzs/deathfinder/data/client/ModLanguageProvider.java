@@ -15,19 +15,21 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
 
     @Override
     public void addTranslations(TranslationBuilder builder) {
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_POSITION, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_POSITION);
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DIMENSION, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DIMENSION);
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_DIMENSION, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_DIMENSION);
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_CLOSE, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_CLOSE);
-        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_BLOCKS, DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_BLOCKS);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_POSITION,
+                DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_POSITION);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DIMENSION,
+                DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DIMENSION);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_DIMENSION,
+                DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_DIMENSION);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_CLOSE,
+                DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_CLOSE);
+        builder.add(DeathMessageBuilder.KEY_DEATH_MESSAGE_DISTANCE_BLOCKS,
+                DeathMessageBuilder.FALLBACK_DEATH_MESSAGE_DISTANCE_BLOCKS);
         builder.add(DeathScreenHandler.KEY_DEATH_SCREEN_POSITION, "X: %s Y: %s Z: %s");
         builder.add(CompassTooltipHandler.KEY_COMPASS_POSITION, "X: %s Y: %s Z: %s");
         builder.add(CompassTooltipHandler.KEY_COMPASS_DIMENSION, "Dimension: %s");
-        builder.add(TeleportToDeathProblem.MISSING_PERMISSIONS.getComponent(), "You do not have the necessary permissions to teleport");
-        builder.add(TeleportToDeathProblem.ALREADY_USED.getComponent(), "You have already teleported to a death point");
-        builder.add(TeleportToDeathProblem.TOO_LONG_AGO.getComponent(), "This death occurred too long ago");
-        builder.add(TeleportToDeathProblem.NOT_MOST_RECENT.getComponent(), "This is not your most recent death point");
-        builder.add(TeleportToDeathProblem.NOT_YOURS.getComponent(), "This is not your death point");
-        builder.add(TeleportToDeathProblem.OTHER_PROBLEM.getComponent(), "Teleporting to death points is not allowed on this server");
+        TeleportToDeathProblem.forEach((TeleportToDeathProblem teleportToDeathProblem) -> {
+            teleportToDeathProblem.registerTranslation(builder::add);
+        });
     }
 }
