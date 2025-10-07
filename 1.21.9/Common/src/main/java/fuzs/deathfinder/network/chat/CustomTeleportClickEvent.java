@@ -7,7 +7,6 @@ import fuzs.deathfinder.DeathFinder;
 import fuzs.deathfinder.attachment.DeathTracker;
 import fuzs.deathfinder.config.ServerConfig;
 import fuzs.deathfinder.init.ModRegistry;
-import fuzs.puzzleslib.api.network.v4.NetworkingHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -49,15 +48,10 @@ public record CustomTeleportClickEvent(UUID uuid, GlobalPos position) {
                 blockPos.getZ());
     }
 
-    public static ClickEvent getClickEvent(@Nullable ServerPlayer serverPlayer, UUID uuid, ResourceKey<Level> dimension, BlockPos position) {
+    public static ClickEvent getClickEvent(UUID uuid, ResourceKey<Level> dimension, BlockPos position) {
         CustomTeleportClickEvent clickEvent = new CustomTeleportClickEvent(uuid, GlobalPos.of(dimension, position));
-        if (serverPlayer != null && NetworkingHelper.isModPresentClientside(serverPlayer, DeathFinder.MOD_ID)) {
-            Optional<Tag> tag = CODEC.encodeStart(NbtOps.INSTANCE, clickEvent)
-                    .resultOrPartial(DeathFinder.LOGGER::warn);
-            return new ClickEvent.Custom(RESOURCE_LOCATION, tag);
-        } else {
-            return new ClickEvent.SuggestCommand(clickEvent.getCommand());
-        }
+        Optional<Tag> tag = CODEC.encodeStart(NbtOps.INSTANCE, clickEvent).resultOrPartial(DeathFinder.LOGGER::warn);
+        return new ClickEvent.Custom(RESOURCE_LOCATION, tag);
     }
 
     public static void handleCustomClickAction(MinecraftServer minecraftServer, ServerPlayer serverPlayer, ResourceLocation id, Optional<Tag> payload) {

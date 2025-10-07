@@ -59,8 +59,7 @@ public class DeathMessageBuilder {
                         position.getY(),
                         position.getZ()))
                 .withStyle((Style style) -> style.withColor(ChatFormatting.GREEN)
-                        .withClickEvent(CustomTeleportClickEvent.getClickEvent(receiver,
-                                this.deadEntity.getUUID(),
+                        .withClickEvent(CustomTeleportClickEvent.getClickEvent(this.deadEntity.getUUID(),
                                 this.deadEntity.level().dimension(),
                                 position))
                         .withHoverEvent(new HoverEvent.ShowText(Component.translatable("chat.coordinates.tooltip"))));
