@@ -1,0 +1,8 @@
+{
+  "death.message.position": "a %s",
+  "death.message.dimension": "nella dimensione %s",
+  "death.message.distance.blocks": "lontano %s blocchi",
+  "death.message.distance.dimension": "molto lontano",
+  "death.message.distance.close": "molto vicino",
+  "death.screen.position": "X: %s Y: %s Z: %s"
+}

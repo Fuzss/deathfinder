@@ -1,0 +1,5 @@
+accessWidener   v2  named
+accessible  field   net/minecraft/network/chat/contents/TranslatableContents    PRIMITIVE_ARG_CODEC Lcom/mojang/serialization/Codec;
+accessible  method  net/minecraft/network/chat/contents/TranslatableContents    adjustArgs  ([Ljava/lang/Object;)Ljava/util/Optional;
+accessible  method  net/minecraft/network/chat/contents/TranslatableContents    create  (Ljava/lang/String;Ljava/util/Optional;Ljava/util/Optional;)Lnet/minecraft/network/chat/contents/TranslatableContents;
+accessible  method  net/minecraft/network/chat/ComponentSerialization   createFromList  (Ljava/util/List;)Lnet/minecraft/network/chat/MutableComponent;
