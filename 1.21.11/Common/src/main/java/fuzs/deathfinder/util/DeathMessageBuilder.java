@@ -9,8 +9,7 @@ import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class DeathMessageBuilder {
     public static final String KEY_DEATH_MESSAGE_POSITION = "death.message.position";
@@ -73,13 +72,13 @@ public class DeathMessageBuilder {
     }
 
     private Component getDimensionComponent() {
-        String dimension = this.deadEntity.level().dimension().location().toString();
+        String dimension = this.deadEntity.level().dimension().identifier().toString();
         return Component.translatableWithFallback(KEY_DEATH_MESSAGE_DIMENSION,
                 FALLBACK_DEATH_MESSAGE_DIMENSION,
                 dimension);
     }
 
-    private Component getDistanceComponent(@NotNull Player receiver) {
+    private Component getDistanceComponent(Player receiver) {
         Component component;
         if (this.deadEntity.level().dimension() != receiver.level().dimension()) {
             component = Component.translatableWithFallback(KEY_DEATH_MESSAGE_DISTANCE_DIMENSION,

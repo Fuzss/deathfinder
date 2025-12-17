@@ -2,11 +2,7 @@ package fuzs.deathfinder.config;
 
 import fuzs.puzzleslib.api.config.v3.Config;
 import fuzs.puzzleslib.api.config.v3.ConfigCore;
-import fuzs.puzzleslib.api.config.v3.serialization.ConfigDataSet;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.entity.EntityType;
 
-import java.util.List;
 
 public class ServerConfig implements ConfigCore {
     @Config(name = "death_message_components")

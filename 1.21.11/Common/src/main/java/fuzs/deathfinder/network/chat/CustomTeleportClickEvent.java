@@ -15,20 +15,22 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.util.Unit;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 public record CustomTeleportClickEvent(UUID uuid, GlobalPos position) {
-    public static final ResourceLocation RESOURCE_LOCATION = DeathFinder.id("teleport");
+    public static final Identifier RESOURCE_LOCATION = DeathFinder.id("teleport");
     public static final Codec<CustomTeleportClickEvent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     UUIDUtil.CODEC.fieldOf("uuid").forGetter(CustomTeleportClickEvent::uuid),
                     GlobalPos.MAP_CODEC.forGetter(CustomTeleportClickEvent::position))
@@ -42,7 +44,7 @@ public record CustomTeleportClickEvent(UUID uuid, GlobalPos position) {
     public String getCommand() {
         BlockPos blockPos = this.position.pos();
         return String.format("/execute in %s run tp @s %s %s %s",
-                this.position.dimension().location(),
+                this.position.dimension().identifier(),
                 blockPos.getX(),
                 blockPos.getY(),
                 blockPos.getZ());
@@ -54,14 +56,16 @@ public record CustomTeleportClickEvent(UUID uuid, GlobalPos position) {
         return new ClickEvent.Custom(RESOURCE_LOCATION, tag);
     }
 
-    public static void handleCustomClickAction(MinecraftServer minecraftServer, ServerPlayer serverPlayer, ResourceLocation id, Optional<Tag> payload) {
+    public static void handleCustomClickAction(MinecraftServer minecraftServer, ServerPlayer serverPlayer, Identifier id, Optional<Tag> payload) {
         if (Objects.equals(id, RESOURCE_LOCATION)) {
             payload.flatMap((Tag tag) -> CODEC.parse(NbtOps.INSTANCE, tag).resultOrPartial(DeathFinder.LOGGER::warn))
                     .ifPresent((CustomTeleportClickEvent clickEvent) -> {
                         clickEvent.tryTeleportToDeath(serverPlayer).ifRight((Unit unit) -> {
+                            // TODO This should call CommandSourceStack::withMaximumPermission, but that is currently broken in vanilla.
                             minecraftServer.getCommands()
                                     .performPrefixedCommand(serverPlayer.createCommandSourceStack()
-                                            .withMaximumPermission(2), clickEvent.getCommand());
+                                                    .withPermission(LevelBasedPermissionSet.GAMEMASTER),
+                                            clickEvent.getCommand());
                         }).ifLeft((TeleportToDeathProblem problem) -> {
                             serverPlayer.displayClientMessage(problem.getComponent(), false);
                         });
@@ -72,7 +76,7 @@ public record CustomTeleportClickEvent(UUID uuid, GlobalPos position) {
     private Either<TeleportToDeathProblem, Unit> tryTeleportToDeath(ServerPlayer serverPlayer) {
         ServerConfig.TeleportRestriction teleportRestriction = DeathFinder.CONFIG.get(ServerConfig.class).components.allowTeleporting;
         if (teleportRestriction != ServerConfig.TeleportRestriction.NO_ONE) {
-            if (serverPlayer.hasPermissions(2)) {
+            if (serverPlayer.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
                 return Either.right(Unit.INSTANCE);
             } else if (teleportRestriction == ServerConfig.TeleportRestriction.EVERYONE) {
                 DeathTracker deathTracker = ModRegistry.DEATH_TRACKER_ATTACHMENT_TYPE.get(serverPlayer);

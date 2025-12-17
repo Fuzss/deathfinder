@@ -18,8 +18,8 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.entity.npc.villager.Villager;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.scores.Team;
 
 import java.util.function.BooleanSupplier;
@@ -27,24 +27,24 @@ import java.util.function.Predicate;
 
 public class DeathMessageHandler {
 
-    public static EventResult onLivingDeath(LivingEntity entity, DamageSource source) {
-        if (!(entity.level() instanceof ServerLevel serverLevel) || !serverLevel.getGameRules()
-                .getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
+    public static EventResult onLivingDeath(LivingEntity livingEntity, DamageSource damageSource) {
+        if (!(livingEntity.level() instanceof ServerLevel serverLevel) || !serverLevel.getGameRules()
+                .get(GameRules.SHOW_DEATH_MESSAGES)) {
             return EventResult.PASS;
         }
 
         for (DeathMessageSource deathSource : DeathMessageSource.values()) {
-            if (deathSource.test(entity)) {
-                DeathMessageBuilder builder = new DeathMessageBuilder(entity).withPosition(DeathFinder.CONFIG.get(
+            if (deathSource.test(livingEntity)) {
+                DeathMessageBuilder builder = new DeathMessageBuilder(livingEntity).withPosition(DeathFinder.CONFIG.get(
                                 ServerConfig.class).components.positionComponent)
                         .withDimension(DeathFinder.CONFIG.get(ServerConfig.class).components.dimensionComponent)
                         .withDistance(DeathFinder.CONFIG.get(ServerConfig.class).components.distanceComponent);
                 switch (deathSource) {
-                    case PLAYER -> handlePlayer((ServerPlayer) entity,
+                    case PLAYER -> handlePlayer((ServerPlayer) livingEntity,
                             builder,
                             new DeathMessageSender(serverLevel.getServer()));
                     case PET -> {
-                        if (((TamableAnimal) entity).getOwner() instanceof ServerPlayer serverPlayer) {
+                        if (((TamableAnimal) livingEntity).getOwner() instanceof ServerPlayer serverPlayer) {
                             Component component = builder.build(serverPlayer);
                             serverPlayer.sendSystemMessage(component, false);
                         }

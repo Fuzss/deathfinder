@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,8 +29,14 @@ public class CompassTooltipHandler {
             if (lastDeathLocation.isPresent()) {
                 BlockPos pos = lastDeathLocation.map(GlobalPos::pos).orElseThrow();
                 ResourceKey<Level> dimension = lastDeathLocation.map(GlobalPos::dimension).orElseThrow();
-                lines.add(Component.translatable(KEY_COMPASS_POSITION, Component.literal(String.valueOf(pos.getX())).withStyle(ChatFormatting.GRAY), Component.literal(String.valueOf(pos.getY())).withStyle(ChatFormatting.GRAY), Component.literal(String.valueOf(pos.getZ())).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
-                lines.add(Component.translatable(KEY_COMPASS_DIMENSION, Component.literal(dimension.location().toString()).withStyle(ChatFormatting.GRAY)).withStyle(ChatFormatting.GOLD));
+                lines.add(Component.translatable(KEY_COMPASS_POSITION,
+                                Component.literal(String.valueOf(pos.getX())).withStyle(ChatFormatting.GRAY),
+                                Component.literal(String.valueOf(pos.getY())).withStyle(ChatFormatting.GRAY),
+                                Component.literal(String.valueOf(pos.getZ())).withStyle(ChatFormatting.GRAY))
+                        .withStyle(ChatFormatting.GOLD));
+                lines.add(Component.translatable(KEY_COMPASS_DIMENSION,
+                                Component.literal(dimension.identifier().toString()).withStyle(ChatFormatting.GRAY))
+                        .withStyle(ChatFormatting.GOLD));
             }
         }
     }
